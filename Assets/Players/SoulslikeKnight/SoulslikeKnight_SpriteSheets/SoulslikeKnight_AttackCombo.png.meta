@@ -1,0 +1,962 @@
+fileFormatVersion: 2
+guid: e5ddf72b26fe54e2ea87731210eb9c2c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5865937898294095035
+    second: SoulslikeKnight_AttackCombo_0
+  - first:
+      213: 2738212040121029201
+    second: SoulslikeKnight_AttackCombo_1
+  - first:
+      213: 6135713630985580853
+    second: SoulslikeKnight_AttackCombo_2
+  - first:
+      213: -6585054511759557298
+    second: SoulslikeKnight_AttackCombo_3
+  - first:
+      213: 4069017413161881290
+    second: SoulslikeKnight_AttackCombo_4
+  - first:
+      213: -3041216510090729852
+    second: SoulslikeKnight_AttackCombo_5
+  - first:
+      213: 6358506159248814576
+    second: SoulslikeKnight_AttackCombo_6
+  - first:
+      213: 9050303811471600942
+    second: SoulslikeKnight_AttackCombo_7
+  - first:
+      213: 6506336705139117500
+    second: SoulslikeKnight_AttackCombo_8
+  - first:
+      213: 6518982884251563994
+    second: SoulslikeKnight_AttackCombo_9
+  - first:
+      213: -4441764728446562505
+    second: SoulslikeKnight_AttackCombo_10
+  - first:
+      213: -5729520283222944885
+    second: SoulslikeKnight_AttackCombo_11
+  - first:
+      213: 3027563686624635473
+    second: SoulslikeKnight_AttackCombo_12
+  - first:
+      213: -8993262663896094493
+    second: SoulslikeKnight_AttackCombo_13
+  - first:
+      213: 5287218732581058638
+    second: SoulslikeKnight_AttackCombo_14
+  - first:
+      213: 7416118805934939273
+    second: SoulslikeKnight_AttackCombo_15
+  - first:
+      213: 4122152389674401247
+    second: SoulslikeKnight_AttackCombo_16
+  - first:
+      213: -4299527603151477957
+    second: SoulslikeKnight_AttackCombo_17
+  - first:
+      213: -7370933746230025586
+    second: SoulslikeKnight_AttackCombo_18
+  - first:
+      213: -5622325887096709945
+    second: SoulslikeKnight_AttackCombo_19
+  - first:
+      213: -5153171588323322479
+    second: SoulslikeKnight_AttackCombo_20
+  - first:
+      213: -2972006166833307329
+    second: SoulslikeKnight_AttackCombo_21
+  - first:
+      213: -5095167682035347857
+    second: SoulslikeKnight_AttackCombo_22
+  - first:
+      213: -773230306506471691
+    second: SoulslikeKnight_AttackCombo_23
+  - first:
+      213: -4838061197300533072
+    second: SoulslikeKnight_AttackCombo_24
+  - first:
+      213: 5458923341588997066
+    second: SoulslikeKnight_AttackCombo_25
+  - first:
+      213: -8418602516836285985
+    second: SoulslikeKnight_AttackCombo_26
+  - first:
+      213: 1528629092975692585
+    second: SoulslikeKnight_AttackCombo_27
+  - first:
+      213: -44194686015687557
+    second: SoulslikeKnight_AttackCombo_28
+  - first:
+      213: -2181880218189634433
+    second: SoulslikeKnight_AttackCombo_29
+  - first:
+      213: -1653940360650353704
+    second: SoulslikeKnight_AttackCombo_30
+  - first:
+      213: 2428763283951858430
+    second: SoulslikeKnight_AttackCombo_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_0
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 4
+        width: 76
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 543dda18f80089ea0800000000000000
+      internalID: -5865937898294095035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_1
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 4
+        width: 64
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1529c13c755100620800000000000000
+      internalID: 2738212040121029201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_2
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 4
+        width: 51
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 531fa6af90f662550800000000000000
+      internalID: 6135713630985580853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_3
+      rect:
+        serializedVersion: 2
+        x: 935
+        y: 4
+        width: 51
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4dfcf78fcf2d94a0800000000000000
+      internalID: -6585054511759557298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_4
+      rect:
+        serializedVersion: 2
+        x: 985
+        y: 23
+        width: 58
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ace846857cd087830800000000000000
+      internalID: 4069017413161881290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_5
+      rect:
+        serializedVersion: 2
+        x: 1211
+        y: 4
+        width: 102
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4862df672bd6bc5d0800000000000000
+      internalID: -3041216510090729852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_6
+      rect:
+        serializedVersion: 2
+        x: 1488
+        y: 4
+        width: 48
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f1b82cb9a3fd3850800000000000000
+      internalID: 6358506159248814576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_7
+      rect:
+        serializedVersion: 2
+        x: 1762
+        y: 4
+        width: 49
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2de020bd53299d70800000000000000
+      internalID: 9050303811471600942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_8
+      rect:
+        serializedVersion: 2
+        x: 2044
+        y: 4
+        width: 46
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbd07e2e2c62b4a50800000000000000
+      internalID: 6506336705139117500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_9
+      rect:
+        serializedVersion: 2
+        x: 2296
+        y: 4
+        width: 69
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad77aa8e464187a50800000000000000
+      internalID: 6518982884251563994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_10
+      rect:
+        serializedVersion: 2
+        x: 2342
+        y: 30
+        width: 63
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73f4511538eab52c0800000000000000
+      internalID: -4441764728446562505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_11
+      rect:
+        serializedVersion: 2
+        x: 2571
+        y: 4
+        width: 114
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b83d911a8a7ac70b0800000000000000
+      internalID: -5729520283222944885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_12
+      rect:
+        serializedVersion: 2
+        x: 2845
+        y: 4
+        width: 70
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15a222cd121140a20800000000000000
+      internalID: 3027563686624635473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_13
+      rect:
+        serializedVersion: 2
+        x: 3145
+        y: 4
+        width: 46
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e8a0ba6143813380800000000000000
+      internalID: -8993262663896094493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_14
+      rect:
+        serializedVersion: 2
+        x: 3408
+        y: 4
+        width: 53
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e48f845ac69ff5940800000000000000
+      internalID: 5287218732581058638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_15
+      rect:
+        serializedVersion: 2
+        x: 3696
+        y: 4
+        width: 53
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98c98dff2c85be660800000000000000
+      internalID: 7416118805934939273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_16
+      rect:
+        serializedVersion: 2
+        x: 3995
+        y: 4
+        width: 46
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fddf19022c3d43930800000000000000
+      internalID: 4122152389674401247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_17
+      rect:
+        serializedVersion: 2
+        x: 4017
+        y: 14
+        width: 87
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b336b20cc620554c0800000000000000
+      internalID: -4299527603151477957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_18
+      rect:
+        serializedVersion: 2
+        x: 4271
+        y: 4
+        width: 50
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8225098fce25b990800000000000000
+      internalID: -7370933746230025586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_19
+      rect:
+        serializedVersion: 2
+        x: 4547
+        y: 4
+        width: 47
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cc1e10e46c79f1b0800000000000000
+      internalID: -5622325887096709945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_20
+      rect:
+        serializedVersion: 2
+        x: 4634
+        y: 3
+        width: 42
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1955a5b3eb14c78b0800000000000000
+      internalID: -5153171588323322479
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_21
+      rect:
+        serializedVersion: 2
+        x: 4821
+        y: 4
+        width: 48
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3161ab332051c6d0800000000000000
+      internalID: -2972006166833307329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_22
+      rect:
+        serializedVersion: 2
+        x: 4898
+        y: 18
+        width: 29
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6e8b311df35a49b0800000000000000
+      internalID: -5095167682035347857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_23
+      rect:
+        serializedVersion: 2
+        x: 4929
+        y: 29
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f68d1b022fe445f0800000000000000
+      internalID: -773230306506471691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_24
+      rect:
+        serializedVersion: 2
+        x: 5096
+        y: 4
+        width: 120
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b8fc4569f0cbdcb0800000000000000
+      internalID: -4838061197300533072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_25
+      rect:
+        serializedVersion: 2
+        x: 5382
+        y: 4
+        width: 21
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac320874bddf1cb40800000000000000
+      internalID: 5458923341588997066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_26
+      rect:
+        serializedVersion: 2
+        x: 5642
+        y: 4
+        width: 38
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd183c65d9d1b2b80800000000000000
+      internalID: -8418602516836285985
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_27
+      rect:
+        serializedVersion: 2
+        x: 4064
+        y: 4
+        width: 49
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92bc420af08c63510800000000000000
+      internalID: 1528629092975692585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_28
+      rect:
+        serializedVersion: 2
+        x: 4320
+        y: 17
+        width: 18
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b74331fca2df26ff0800000000000000
+      internalID: -44194686015687557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_29
+      rect:
+        serializedVersion: 2
+        x: 4344
+        y: 4
+        width: 49
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f74ea5c608768b1e0800000000000000
+      internalID: -2181880218189634433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_30
+      rect:
+        serializedVersion: 2
+        x: 4898
+        y: 4
+        width: 8
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d311c341060c09e0800000000000000
+      internalID: -1653940360650353704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoulslikeKnight_AttackCombo_31
+      rect:
+        serializedVersion: 2
+        x: 4916
+        y: 7
+        width: 16
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef2367fa653b4b120800000000000000
+      internalID: 2428763283951858430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      SoulslikeKnight_AttackCombo_0: -5865937898294095035
+      SoulslikeKnight_AttackCombo_1: 2738212040121029201
+      SoulslikeKnight_AttackCombo_10: -4441764728446562505
+      SoulslikeKnight_AttackCombo_11: -5729520283222944885
+      SoulslikeKnight_AttackCombo_12: 3027563686624635473
+      SoulslikeKnight_AttackCombo_13: -8993262663896094493
+      SoulslikeKnight_AttackCombo_14: 5287218732581058638
+      SoulslikeKnight_AttackCombo_15: 7416118805934939273
+      SoulslikeKnight_AttackCombo_16: 4122152389674401247
+      SoulslikeKnight_AttackCombo_17: -4299527603151477957
+      SoulslikeKnight_AttackCombo_18: -7370933746230025586
+      SoulslikeKnight_AttackCombo_19: -5622325887096709945
+      SoulslikeKnight_AttackCombo_2: 6135713630985580853
+      SoulslikeKnight_AttackCombo_20: -5153171588323322479
+      SoulslikeKnight_AttackCombo_21: -2972006166833307329
+      SoulslikeKnight_AttackCombo_22: -5095167682035347857
+      SoulslikeKnight_AttackCombo_23: -773230306506471691
+      SoulslikeKnight_AttackCombo_24: -4838061197300533072
+      SoulslikeKnight_AttackCombo_25: 5458923341588997066
+      SoulslikeKnight_AttackCombo_26: -8418602516836285985
+      SoulslikeKnight_AttackCombo_27: 1528629092975692585
+      SoulslikeKnight_AttackCombo_28: -44194686015687557
+      SoulslikeKnight_AttackCombo_29: -2181880218189634433
+      SoulslikeKnight_AttackCombo_3: -6585054511759557298
+      SoulslikeKnight_AttackCombo_30: -1653940360650353704
+      SoulslikeKnight_AttackCombo_31: 2428763283951858430
+      SoulslikeKnight_AttackCombo_4: 4069017413161881290
+      SoulslikeKnight_AttackCombo_5: -3041216510090729852
+      SoulslikeKnight_AttackCombo_6: 6358506159248814576
+      SoulslikeKnight_AttackCombo_7: 9050303811471600942
+      SoulslikeKnight_AttackCombo_8: 6506336705139117500
+      SoulslikeKnight_AttackCombo_9: 6518982884251563994
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - Ground
+  - Enemy
+  - Heart
+  - Trap
+  - DeadLine
+  - Chest
+  - Diamond
+  - Coin
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Ground
+  - Water
+  - UI
+  - Enemy
+  - Player
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Background
+    uniqueID: 427485217
+    locked: 0
+  - name: backmid
+    uniqueID: 815408903
+    locked: 0
+  - name: Backnear
+    uniqueID: 189123211
+    locked: 0
+  - name: Backtiles
+    uniqueID: 2510062121
+    locked: 0
+  - name: Water
+    uniqueID: 88642409
+    locked: 0
+  - name: Ground
+    uniqueID: 255772837
+    locked: 0
+  - name: player
+    uniqueID: 1079079621
+    locked: 0
+  - name: Grill
+    uniqueID: 367501473
+    locked: 0
+  - name: harzard
+    uniqueID: 2131939833
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Platform_tile
+    uniqueID: 3518889863
+    locked: 0
+  - name: Ropes
+    uniqueID: 2383802201
+    locked: 0
+  - name: ui
+    uniqueID: 3003291947
+    locked: 0
+  m_RenderingLayers:
+  - Default
