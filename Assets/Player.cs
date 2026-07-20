@@ -4,6 +4,13 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    [Header("Menu")]
+    [SerializeField] private GameObject menuPanel;
+    [SerializeField] private KeyCode menuKey = KeyCode.P;
+    [SerializeField] private bool autoDisableMenu = true;
+    [SerializeField] private float autoDisableSeconds = 5f;
+    private Coroutine autoDisableCoroutine;
+
     [Header("Movement")]
     public float moveSpeed = 8f;
 
@@ -59,11 +66,20 @@ public class Player : MonoBehaviour
             healthSlider.maxValue = maxHealth;
             healthSlider.value = maxHealth;
         }
+
+        if (menuPanel != null)
+            menuPanel.SetActive(false);
     }
 
     void Update()
     {
         if (isDead) return;
+
+        if (Input.GetKeyDown(menuKey))
+            ToggleMenu();
+
+        if (menuPanel != null && menuPanel.activeSelf)
+            return;
 
         moveInput = Input.GetAxisRaw("Horizontal");
 
@@ -73,6 +89,53 @@ public class Player : MonoBehaviour
         Roll();
         Block();
         Heal();
+    }
+
+    void ToggleMenu()
+    {
+        if (menuPanel == null)
+        {
+            Debug.LogWarning("Menu panel is not assigned to Player.");
+            return;
+        }
+
+        bool willOpen = !menuPanel.activeSelf;
+        menuPanel.SetActive(willOpen);
+
+        if (willOpen)
+        {
+            Time.timeScale = 0f;
+
+            if (autoDisableMenu)
+            {
+                if (autoDisableCoroutine != null)
+                    StopCoroutine(autoDisableCoroutine);
+
+                autoDisableCoroutine = StartCoroutine(AutoDisableMenuRoutine(autoDisableSeconds));
+            }
+        }
+        else
+        {
+            Time.timeScale = 1f;
+
+            if (autoDisableCoroutine != null)
+            {
+                StopCoroutine(autoDisableCoroutine);
+                autoDisableCoroutine = null;
+            }
+        }
+    }
+
+    private IEnumerator AutoDisableMenuRoutine(float seconds)
+    {
+        yield return new WaitForSecondsRealtime(seconds);
+
+        if (menuPanel != null && menuPanel.activeSelf)
+        {
+            menuPanel.SetActive(false);
+            Time.timeScale = 1f;
+            autoDisableCoroutine = null;
+        }
     }
 
     // ---------------- MOVEMENT -----------------
@@ -188,8 +251,8 @@ public class Player : MonoBehaviour
         foreach (Collider2D c in GetComponents<Collider2D>())
             c.enabled = false;
 
-        if (GameManager.instance != null)
-            GameManager.instance.TriggerGameOverBackground();
+        if (GameManager.Instance != null)
+            GameManager.Instance.TriggerGameOverBackground();
 
         this.enabled = false;
 
