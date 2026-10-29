@@ -10,12 +10,24 @@ public class BackgroundController : MonoBehaviour
 
     void Start()
     {
+        if (cam == null)
+            cam = Camera.main != null ? Camera.main.gameObject : null;
+
+        if (cam == null)
+            return;
+
         startPos = transform.position.x;
-        length = GetComponent<SpriteRenderer>().bounds.size.x;
+
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
+            length = sr.bounds.size.x;
     }
 
     void FixedUpdate()
     {
+        if (cam == null)
+            return;
+
         // Calculate distance background moves based on camera movement
         float distance = cam.transform.position.x * parallaxEffect; // 0 = move with cam || 1 = won't move || 0.5 = half
         float movement = cam.transform.position.x * (1 - parallaxEffect);

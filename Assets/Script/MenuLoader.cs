@@ -3,23 +3,48 @@ using UnityEngine.SceneManagement;
 
 public class MenuLoader : MonoBehaviour
 {
+    private void LoadSceneByName(string sceneName)
+    {
+        if (string.IsNullOrWhiteSpace(sceneName))
+            return;
+
+        if (SceneManager.GetActiveScene().name == sceneName)
+        {
+            Debug.LogWarning($"Already on '{sceneName}'. Not reloading the scene.");
+            return;
+        }
+
+        if (Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            SceneManager.LoadScene(sceneName);
+        }
+        else
+        {
+            Debug.LogWarning($"Scene '{sceneName}' cannot be loaded. Check Build Settings and scene name.");
+        }
+    }
+
     public void LoadGraveyard()
     {
-        SceneManager.LoadScene("Scenes/Graveyard");
+        LoadSceneByName("Graveyard");
     }
 
     public void LoadWoodcamp()
     {
-        SceneManager.LoadScene("Scenes/Woodcamp");
+        LoadSceneByName("Woodcamp");
     }
 
     public void LoadGrove()
     {
-        SceneManager.LoadScene("Scenes/Grove");
+        LoadSceneByName("Grove");
     }
 
     public void QuitGame()
     {
         Application.Quit();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }

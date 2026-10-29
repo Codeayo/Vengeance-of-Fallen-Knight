@@ -147,13 +147,15 @@ public class SceneManagement : MonoBehaviour
     {
         if (isLoading) return;
 
-        if (spaceToLoadNext && Input.GetKeyDown(KeyCode.Space))
+        bool isMenuScene = SceneManager.GetActiveScene().name == mainMenuSceneName;
+
+        if (spaceToLoadNext && isMenuScene && Input.GetKeyDown(KeyCode.Space))
         {
             LoadNextScene();
             return;
         }
 
-        if (keyToLoadNext && Input.GetKeyDown(loadNextKey))
+        if (keyToLoadNext && isMenuScene && Input.GetKeyDown(loadNextKey))
         {
             LoadNextScene();
         }
@@ -210,6 +212,9 @@ public class SceneManagement : MonoBehaviour
 
     private IEnumerator StartingTransitionRoutine()
     {
+        if (startingTransition == null)
+            yield break;
+
         startingTransition.SetTrigger(startingTrigger);
         yield return new WaitForSeconds(transitionTime);
     }

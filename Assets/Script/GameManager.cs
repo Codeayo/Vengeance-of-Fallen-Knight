@@ -73,6 +73,12 @@ public class GameManager : MonoBehaviour
     {
         string sceneName = "Graveyard";
 
+        if (SceneManager.GetActiveScene().name == sceneName)
+        {
+            Debug.LogWarning($"Already on scene '{sceneName}'. Not reloading it.");
+            return;
+        }
+
         Debug.Log($"PlayGame called. Loading scene: {sceneName}");
 
         if (Application.CanStreamedLevelBeLoaded(sceneName))

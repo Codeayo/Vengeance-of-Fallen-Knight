@@ -33,23 +33,53 @@ public class MusicManager : MonoBehaviour
 
     void Start()
     {
+        if (musicSource == null)
+            musicSource = GetComponent<AudioSource>();
+
+        if (sfxSource == null)
+            sfxSource = GetComponent<AudioSource>();
+
         LoadVolumeSettings();
 
+        if (musicSource != null)
+        {
+            musicSource.loop = true;
+            musicSource.pitch = 1f;
+            if (!musicSource.isPlaying && musicSource.clip != null)
+                musicSource.Play();
+        }
+
         // Add listeners
-        musicSlider.onValueChanged.AddListener(SetMusicVolume);
-        sfxSlider.onValueChanged.AddListener(SetSFXVolume);
+        if (musicSlider != null)
+            musicSlider.onValueChanged.AddListener(SetMusicVolume);
+
+        if (sfxSlider != null)
+            sfxSlider.onValueChanged.AddListener(SetSFXVolume);
+    }
+
+    private void OnDestroy()
+    {
+        if (musicSlider != null)
+            musicSlider.onValueChanged.RemoveListener(SetMusicVolume);
+
+        if (sfxSlider != null)
+            sfxSlider.onValueChanged.RemoveListener(SetSFXVolume);
     }
 
     // --- Volume Controls ---
     public void SetMusicVolume(float volume)
     {
-        musicSource.volume = volume;
+        if (musicSource != null)
+            musicSource.volume = volume;
+
         PlayerPrefs.SetFloat(MUSIC_KEY, volume);
     }
 
     public void SetSFXVolume(float volume)
     {
-        sfxSource.volume = volume;
+        if (sfxSource != null)
+            sfxSource.volume = volume;
+
         PlayerPrefs.SetFloat(SFX_KEY, volume);
     }
 
@@ -59,8 +89,11 @@ public class MusicManager : MonoBehaviour
         float musicVol = PlayerPrefs.GetFloat(MUSIC_KEY, 0.5f);
         float sfxVol = PlayerPrefs.GetFloat(SFX_KEY, 0.5f);
 
-        musicSource.volume = musicVol;
-        sfxSource.volume = sfxVol;
+        if (musicSource != null)
+            musicSource.volume = musicVol;
+
+        if (sfxSource != null)
+            sfxSource.volume = sfxVol;
 
         if (musicSlider != null) musicSlider.value = musicVol;
         if (sfxSlider != null) sfxSlider.value = sfxVol;

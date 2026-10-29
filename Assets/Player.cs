@@ -16,6 +16,8 @@ public class Player : MonoBehaviour
 
     [Header("Jump")]
     public float jumpForce = 14f;
+    [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField] private int maxJumps = 2;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -52,12 +54,16 @@ public class Player : MonoBehaviour
     float lastAttackTime;
     int currentHealth;
     bool isDead = false;
+    bool warnedAboutGroundLayer;
+    bool warnedAboutMissingGroundCollider;
+    int jumpsRemaining;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        jumpsRemaining = Mathf.Max(1, maxJumps);
 
         currentHealth = maxHealth;
 
@@ -84,7 +90,7 @@ public class Player : MonoBehaviour
         moveInput = Input.GetAxisRaw("Horizontal");
 
         Move();
-        Jump();   // infinite jump
+        Jump();
         Attack();
         Roll();
         Block();
@@ -138,6 +144,14 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        if (menuPanel != null && menuPanel.activeSelf)
+            menuPanel.SetActive(false);
+
+        Time.timeScale = 1f;
+    }
+
     // ---------------- MOVEMENT -----------------
     void Move()
     {
@@ -148,19 +162,65 @@ public class Player : MonoBehaviour
         if (moveInput < 0) sr.flipX = true;
     }
 
-    // ---------------- INFINITE JUMP -----------------
+    // ---------------- JUMP -----------------
     void Jump()
     {
-        if (Input.GetButtonDown("Jump"))
+        bool jumpPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(jumpKey);
+
+        try
+        {
+            jumpPressed |= Input.GetButtonDown("Jump");
+        }
+        catch (UnityException)
+        {
+            // The legacy input action may not exist when only the Input System is enabled.
+        }
+
+        bool grounded = IsGrounded();
+        if (grounded)
+            jumpsRemaining = Mathf.Max(1, maxJumps);
+
+        if (jumpPressed && jumpsRemaining > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             anim.SetTrigger(JUMP);
+            jumpsRemaining--;
         }
     }
 
     bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        if (groundLayer.value == 0)
+        {
+            if (!warnedAboutGroundLayer)
+            {
+                Debug.LogWarning("Player Ground Layer is empty. Assign the platform layer in the Inspector.", this);
+                warnedAboutGroundLayer = true;
+            }
+
+            return false;
+        }
+
+        if (groundCheck != null)
+        {
+            bool grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+            if (!grounded && !warnedAboutMissingGroundCollider && rb.linearVelocity.y < -5f)
+            {
+                Debug.LogWarning("Player is falling without detecting ground. Check the Graveyard tilemap collider and Ground layer.", this);
+                warnedAboutMissingGroundCollider = true;
+            }
+
+            return grounded;
+        }
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            Vector2 origin = (Vector2)transform.position + new Vector2(0f, -col.bounds.extents.y - 0.02f);
+            return Physics2D.OverlapCircle(origin, Mathf.Max(groundCheckRadius, 0.12f), groundLayer);
+        }
+
+        return false;
     }
 
     // ---------------- ATTACK -----------------

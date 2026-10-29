@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnemyAI : MonoBehaviour
+public class PatrolSkeletonAI : MonoBehaviour
 {
     [Header("References")]
     public Transform player;
@@ -26,8 +26,11 @@ public class EnemyAI : MonoBehaviour
             if (p != null) player = p.transform;
         }
 
-        animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody2D>();
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
     }
 
     void Update()
@@ -55,12 +58,16 @@ public class EnemyAI : MonoBehaviour
     // ---------------- STATE: PATROL ----------------
     void Patrol()
     {
-        animator.SetBool("PlayerDetected", false);
-        animator.SetBool("PlayerInRange", false);
+        if (animator != null)
+        {
+            animator.SetBool("PlayerDetected", false);
+            animator.SetBool("PlayerInRange", false);
+        }
 
-        // Walk in facing direction
-        float moveDir = (transform.localScale.x > 0) ? -1 : 1;
-        rb.linearVelocity = new Vector2(moveDir * patrolSpeed, rb.linearVelocity.y);
+        // Walk in facing direction. Positive x means facing right, so move right.
+        float moveDir = (transform.localScale.x >= 0) ? 1f : -1f;
+        if (rb != null)
+            rb.linearVelocity = new Vector2(moveDir * patrolSpeed, rb.linearVelocity.y);
     }
 
     // ---------------- STATE: CHASE ----------------

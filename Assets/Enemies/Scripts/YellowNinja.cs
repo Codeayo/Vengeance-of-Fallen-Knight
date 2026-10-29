@@ -162,9 +162,9 @@ public class YellowNinja : MonoBehaviour
         if (hit)
         {
             Debug.Log("Player hit by Yellow Ninja");
-
-            // Uncomment once Player.instance exists:
-            // hit.GetComponent<Player>()?.TakeDamage(attackDamage);
+            Player playerHit = hit.GetComponentInParent<Player>();
+            if (playerHit != null)
+                playerHit.TakeDamage(attackDamage);
         }
     }
 
