@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PatrolSkeletonAI : MonoBehaviour
+public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
 {
     [Header("References")]
     public Transform player;
@@ -19,6 +19,12 @@ public class PatrolSkeletonAI : MonoBehaviour
     public int attackDamage = 10;
 
     [SerializeField] int maxHealth = 50;
+    [Tooltip("Delay between the attack animation starting and the hit landing (readable telegraph).")]
+    public float attackWindup = 0.35f;
+    [Tooltip("Bosses: faster and more aggressive below half health.")]
+    public bool enrageAtHalf;
+    bool enraged;
+    bool attacking;
     int health;
 
     public float HealthNormalized => maxHealth > 0 ? Mathf.Clamp01(health / (float)maxHealth) : 0f;
@@ -60,10 +66,25 @@ public class PatrolSkeletonAI : MonoBehaviour
     void Update()
     {
         if (isDead) return;
-        if (player == null)
+        if (player == null || PlayerIsDead())
         {
             Patrol();
             return;
+        }
+
+        if (attacking)
+        {
+            if (rb != null) rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return;
+        }
+
+        if (enrageAtHalf && !enraged && HealthNormalized <= 0.5f)
+        {
+            enraged = true;
+            chaseSpeed *= 1.35f;
+            attackCooldown *= 0.7f;
+            attackWindup *= 0.8f;
+            GameHUD.Instance?.ShowToast("It rages!");
         }
 
         float dist = Vector2.Distance(transform.position, player.position);
@@ -97,7 +118,8 @@ public class PatrolSkeletonAI : MonoBehaviour
         {
             Vector3 checkPosition = groundCheckPoint.position;
             checkPosition.x = transform.position.x + Mathf.Abs(groundCheckPoint.localPosition.x) * patrolDirection;
-            if (!Physics2D.Raycast(checkPosition, Vector2.down, groundCheckDistance, groundLayer))
+            bool wallAhead = Physics2D.Raycast((Vector2)EnemyCore.Feet(gameObject) + Vector2.up * 0.6f, Vector2.right * patrolDirection, 1.2f, groundLayer);
+            if (wallAhead || !Physics2D.Raycast(checkPosition, Vector2.down, groundCheckDistance, groundLayer))
                 patrolDirection *= -1;
         }
 
@@ -119,8 +141,12 @@ public class PatrolSkeletonAI : MonoBehaviour
         }
 
         Vector2 dir = (player.position - transform.position).normalized;
+        // Never chase off a ledge: hold position at the edge instead.
+        bool safe = EnemyCore.GroundAhead(EnemyCore.Feet(gameObject), dir.x, 1.0f, 2.5f);
+        if (animator != null && !safe)
+            animator.SetBool("PlayerDetected", false);
         if (rb != null)
-            rb.linearVelocity = new Vector2(dir.x * chaseSpeed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(safe ? dir.x * chaseSpeed : 0f, rb.linearVelocity.y);
     }
 
     // ---------------- STATE: ATTACK ----------------
@@ -138,13 +164,33 @@ public class PatrolSkeletonAI : MonoBehaviour
         if (Time.time - lastAttackTime >= attackCooldown)
         {
             lastAttackTime = Time.time;
-            if (animator != null)
-                animator.SetTrigger("Attack");
+            StartCoroutine(AttackRoutine());
+        }
+    }
 
+    System.Collections.IEnumerator AttackRoutine()
+    {
+        attacking = true;
+        if (animator != null)
+            animator.SetTrigger("Attack");
+        yield return new WaitForSeconds(attackWindup);
+
+        // The hit only lands if the knight is still in reach when the blow falls (rolling away works).
+        if (!isDead && player != null && Vector2.Distance(transform.position, player.position) <= attackRange * 1.15f)
+        {
             Player playerCharacter = player.GetComponentInParent<Player>();
             if (playerCharacter != null)
                 playerCharacter.TakeDamage(attackDamage);
         }
+
+        yield return new WaitForSeconds(0.25f);
+        attacking = false;
+    }
+
+    bool PlayerIsDead()
+    {
+        Player p = player != null ? player.GetComponent<Player>() : null;
+        return p != null && p.IsDead;
     }
 
     // ---------------- DAMAGE SYSTEM ----------------
@@ -164,6 +210,9 @@ public class PatrolSkeletonAI : MonoBehaviour
     void Die()
     {
         isDead = true;
+        StopAllCoroutines();
+        attacking = false;
+        EnemyCore.ReportDeath(gameObject);
         if (rb != null)
             rb.linearVelocity = Vector2.zero;
 

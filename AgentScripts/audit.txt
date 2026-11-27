@@ -1,0 +1,95 @@
+result: ##### Assets/Scenes/Woodcamp.unity roots: Camera, Grid, Canvas, Player, MusicManager
+          TM Background L=Default world x 11..11 y 0..0 col=none comp=- sort=Background
+          TM Bush L=Default world x 40..41 y -5..-4 col=none comp=- sort=Default
+          TM Ground L=Ground world x 0..91 y -1..2 col=on comp=Outlines sort=Ground
+          TM woodprop L=Default world x 9..77 y -1..3 col=none comp=- sort=Backnear
+          TM Prop L=Default world x 20..77 y -5..1 col=none comp=- sort=Default
+          TM Hazards L=Default world x 0..0 y 0..0 col=none comp=- sort=harzard
+          PLAYER Player pos=(1.60, 1.18, 0.00) layer=Default gl=8 box=(3.20, 3.25)/(0.74, 0.00) mat=none prefab=Assets/Players/Player.prefab
+          MusicManager on MusicManager at 0.0,0.0
+          missing scripts: 0
+          cinemachine: Cinemacamera
+          ground: 0:1.4 2:0.6 10:-0.7 18:-1.7 26:5.3 28:-1.7 34:-4.7 38:-2.6 44:GAP 46:1.1 48:3.3 50:GAP 54:4.4 58:GAP 62:3.3 66:2.2 68:1.2 70:0.3 92:GAP 
+        ##### Assets/Scenes/Grove.unity roots: LevelLoader, Camera (1), GameObject, DeathBoxx, Grid, Canvas, NextLevel, Coin, Coin (1), Coin (2), Coin (3), Player, Enemy_1, Enemy_1 (1), Enemy_1 (2), Enemy_1 (3), Enemy_1 (4), Enemy_1 (5), MusicManager
+          TM Background L=Default world x 11..11 y 0..0 col=none comp=- sort=Background
+          TM Hazards L=Default world x 0..0 y 0..0 col=none comp=- sort=harzard
+          TM Bush L=Ground world x 13..200 y -1..2 col=on comp=Outlines sort=Ground
+          TM Ground L=Ground world x -1..1 y -3..2 col=on comp=Outlines sort=Ground
+          TM Fence L=Default world x 13..58 y -1..2 col=none comp=- sort=Default
+          PLAYER Player pos=(13.00, 3.70, 0.00) layer=Default gl=8 box=(3.20, 3.25)/(0.74, 0.00) mat=none prefab=Assets/Players/Player.prefab
+          YellowNinja on Enemy_1 (4) at 111.0,5.0
+          MusicManager on MusicManager at 0.0,0.0
+          YellowNinja on Enemy_1 (5) at 139.0,3.0
+          YellowNinja on Enemy_1 at 43.0,3.0
+          DeathBox on DeathBoxx at 167.1,-7.9
+          YellowNinja on Enemy_1 (2) at 67.0,5.0
+          YellowNinja on Enemy_1 (1) at 38.0,3.0
+          YellowNinja on Enemy_1 (3) at 87.0,3.0
+          missing scripts: 0
+          cinemachine: Cinemacamera
+          ground: 0:3.2 4:GAP 14:1.6 24:0.2 26:-0.4 36:GAP 40:0.1 42:1.1 46:0.0 48:GAP 52:-0.4 62:1.0 64:1.8 74:GAP 76:3.2 80:GAP 82:1.2 84:GAP 88:0.1 90:-1.4 94:-0.5 96:0.5 108:GAP 112:3.1 116:GAP 120:5.1 122:GAP 128:3.1 130:GAP 132:12.1 134:12.6 138:11.6 140:10.6 142:1.8 150:GAP 154:4.2 156:GAP 158:5.2 162:GAP 166:3.2 168:GAP 172:0.5 174:1.5 188:2.5 190:1.6 192:0.8 198:GAP 
+        ##### Assets/Scenes/Taiga.unity roots: LevelLoader, Camera (1), GameObject, DeathBoxx, Grid, Canvas, NextLevel, Coin, Coin (1), Coin (2), Coin (3), Player, Enemy_1, Enemy_1 (1), Enemy_1 (2), Enemy_1 (3), Enemy_1 (4), Enemy_1 (5), MusicManager
+          TM Ground L=Ground world x -1..1 y -3..2 col=on comp=Outlines sort=Ground
+          TM Hazards L=Default world x 0..0 y 0..0 col=none comp=- sort=harzard
+          TM Fence L=Default world x 13..58 y -1..2 col=none comp=- sort=Default
+          TM Bush L=Ground world x 12..191 y -1..2 col=on comp=Outlines sort=Ground
+          TM Background L=Default world x 11..11 y 0..0 col=none comp=- sort=Background
+          PLAYER Player pos=(13.00, 3.70, 0.00) layer=Default gl=8 box=(3.20, 3.25)/(0.74, 0.00) mat=none prefab=Assets/Players/Player.prefab
+          YellowNinja on Enemy_1 (3) at 87.0,4.0
+          YellowNinja on Enemy_1 at 43.0,3.0
+          MusicManager on MusicManager at 0.0,0.0
+          YellowNinja on Enemy_1 (2) at 67.0,2.0
+          YellowNinja on Enemy_1 (5) at 139.0,4.0
+          DeathBox on DeathBoxx at 167.1,-7.9
+          YellowNinja on Enemy_1 (1) at 38.0,3.0
+          YellowNinja on Enemy_1 (4) at 111.0,2.0
+          missing scripts: 0
+          cinemachine: Cinemacamera
+          ground: 0:3.2 4:GAP 14:1.6 24:0.2 26:-0.4 36:GAP 40:0.1 42:1.1 46:0.0 48:GAP 52:-0.4 62:1.0 64:1.8 74:GAP 76:3.2 80:GAP 82:1.2 84:GAP 88:0.1 90:-1.4 94:-0.5 96:0.5 108:GAP 112:3.1 116:GAP 120:5.1 122:GAP 128:3.1 130:GAP 132:12.1 134:12.6 138:11.6 140:10.6 142:1.8 150:GAP 154:4.2 156:GAP 158:5.2 162:GAP 166:3.2 168:GAP 172:0.5 174:1.5 188:2.5 190:1.6 192:0.8 198:GAP 
+        ##### Assets/Castle.unity roots: LevelLoader, Camera (1), GameObject, DeathBoxx, Grid, Canvas, NextLevel, Coin, Coin (1), Coin (2), Coin (3), Player, Enemy_1, Enemy_1 (1), Enemy_1 (2), Enemy_1 (3), Enemy_1 (4), Enemy_1 (5), MusicManager
+          TM Hazards L=Default world x 0..0 y 0..0 col=none comp=- sort=harzard
+          TM Fence L=Default world x 13..58 y -1..2 col=none comp=- sort=Default
+          TM Background L=Default world x 11..11 y 0..0 col=none comp=- sort=Background
+          TM Bush L=Ground world x 13..196 y -1..3 col=on comp=Outlines sort=Ground
+          TM Ground L=Ground world x -1..1 y -3..2 col=on comp=Outlines sort=Ground
+          PLAYER Player pos=(13.00, 3.70, 0.00) layer=Default gl=8 box=(3.20, 3.25)/(0.74, 0.00) mat=none prefab=Assets/Players/Player.prefab
+          YellowNinja on Enemy_1 (5) at 139.0,4.0
+          MusicManager on MusicManager at 0.0,0.0
+          YellowNinja on Enemy_1 (2) at 67.0,2.0
+          DeathBox on DeathBoxx at 167.1,-7.9
+          YellowNinja on Enemy_1 at 43.0,3.0
+          YellowNinja on Enemy_1 (4) at 111.0,3.0
+          YellowNinja on Enemy_1 (1) at 38.0,3.0
+          YellowNinja on Enemy_1 (3) at 87.0,4.0
+          missing scripts: 0
+          cinemachine: Cinemacamera
+          ground: 0:3.2 4:GAP 14:1.6 24:0.2 26:-0.4 36:GAP 40:0.1 42:1.1 46:0.0 48:GAP 52:-0.4 62:1.0 64:1.8 74:GAP 76:3.2 80:GAP 82:1.2 84:GAP 88:0.1 90:-1.4 94:-0.5 96:0.5 108:GAP 112:3.1 116:GAP 120:5.1 122:GAP 128:3.1 130:GAP 132:12.1 134:12.6 138:11.6 140:10.6 142:1.8 150:GAP 154:4.2 156:GAP 158:5.2 162:GAP 166:3.2 168:GAP 172:0.5 174:1.5 188:2.5 190:1.6 192:0.8 198:GAP 
+        ##### Assets/Scenes/ThroneRoom.unity roots: LevelLoader, Camera (1), GameObject, DeathBoxx, Grid, Canvas, NextLevel, Coin, Coin (1), Coin (2), Coin (3), Player, Enemy_1, Enemy_1 (1), Enemy_1 (2), Enemy_1 (3), Enemy_1 (4), Enemy_1 (5), MusicManager
+          TM Background L=Default world x 11..11 y 0..0 col=none comp=- sort=Background
+          TM Ground L=Ground world x -1..1 y -3..2 col=on comp=Outlines sort=Ground
+          TM Bush L=Ground world x 13..195 y 0..4 col=on comp=Outlines sort=Ground
+          TM Hazards L=Default world x 0..0 y 0..0 col=none comp=- sort=harzard
+          TM Fence L=Default world x 13..58 y -1..2 col=none comp=- sort=Default
+          PLAYER Player pos=(13.00, 3.70, 0.00) layer=Default gl=8 box=(3.20, 3.25)/(0.74, 0.00) mat=none prefab=Assets/Players/Player.prefab
+          YellowNinja on Enemy_1 (4) at 152.0,4.0
+          MusicManager on MusicManager at 0.0,0.0
+          YellowNinja on Enemy_1 (1) at 40.0,3.0
+          YellowNinja on Enemy_1 (2) at 95.0,3.0
+          DeathBox on DeathBoxx at 167.1,-7.9
+          YellowNinja on Enemy_1 (5) at 180.0,3.0
+          YellowNinja on Enemy_1 (3) at 122.0,5.0
+          YellowNinja on Enemy_1 at 68.0,5.0
+          missing scripts: 0
+          cinemachine: Cinemacamera
+          ground: 0:3.2 4:GAP 14:1.6 24:0.2 26:-0.4 36:GAP 40:0.1 42:1.1 46:0.0 48:GAP 52:-0.4 62:1.0 64:1.8 74:GAP 76:3.2 80:GAP 82:1.2 84:GAP 88:0.1 90:-1.4 94:-0.5 96:0.5 108:GAP 112:3.1 116:GAP 120:5.1 122:GAP 128:3.1 130:GAP 132:12.1 134:12.6 138:11.6 140:10.6 142:1.8 150:GAP 154:4.2 156:GAP 158:5.2 162:GAP 166:3.2 168:GAP 172:0.5 174:1.5 188:2.5 190:1.6 192:0.8 198:GAP 
+        ##### Assets/Scenes/Credits.unity roots: Main Camera, Canvas, EventSystem, MusicManager
+          NO PLAYER
+          CreditScene on TITLE TEXT at 556.5,-454.7
+          MusicManager on MusicManager at 0.0,0.0
+          CreditScene on Text (TMP) at 550.5,59.0
+          missing scripts: 0
+          cinemachine: none
+diagnostics: []
+compileMs: 2646
+executeMs: 3643
+assemblyName: PipelineRunScript_Audit_cf81702607ef4c38a39a38dba479ecee

@@ -160,6 +160,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (!GameSave.HasSavedGame)
             return;
+        GameSave.LoadRun();
         Load(GameSave.GetSavedSceneOr(firstLevelScene));
     }
 
@@ -173,7 +174,7 @@ public class MainMenuController : MonoBehaviour
 
     private void StartNewGame()
     {
-        GameSave.ClearProgress();
+        GameSave.NewRun();
         Load(firstLevelScene);
     }
 
@@ -182,8 +183,8 @@ public class MainMenuController : MonoBehaviour
         if (!GameSave.IsLevelUnlocked(index))
             return;
 
-        // Starting a chapter from Level Select begins a fresh run at that chapter.
-        GameSave.ClearProgress();
+        // Starting a chapter from Level Select begins a fresh run at that chapter, with fair gear.
+        GameSave.NewRunAtChapter(index);
         Load(GameSave.Levels[index].scene);
     }
 

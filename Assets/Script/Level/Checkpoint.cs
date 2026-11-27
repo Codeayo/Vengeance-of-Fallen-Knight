@@ -28,6 +28,26 @@ public class Checkpoint : MonoBehaviour
         SetLit(false, true);
     }
 
+    private void Start()
+    {
+        // Continue: resume at the shrine the run was saved at.
+        string pending = GameSave.ConsumePendingCheckpoint(gameObject.scene.name);
+        if (pending == checkpointName)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            Player player = p != null ? p.GetComponent<Player>() : null;
+            if (player != null)
+            {
+                player.SetRespawnPoint(RespawnPosition);
+                player.TeleportTo(RespawnPosition);
+                Active = this;
+                SetLit(true, true);
+            }
+        }
+    }
+
+    public string CheckpointName => checkpointName;
+
     private void OnDestroy()
     {
         if (Active == this)
@@ -53,7 +73,7 @@ public class Checkpoint : MonoBehaviour
             return;
 
         player.SetRespawnPoint(RespawnPosition);
-        player.RestoreHealthTo(Mathf.CeilToInt(player.maxHealth * 0.5f));
+        player.RestoreHealthTo(Mathf.CeilToInt(player.MaxHealth * 0.5f));
 
         if (Active == this)
             return;
@@ -63,8 +83,25 @@ public class Checkpoint : MonoBehaviour
         Active = this;
         SetLit(true, false);
 
-        GameHUD.Instance?.ShowToast($"{checkpointName} kindled");
+        GameHUD.Instance?.ShowToast($"{checkpointName} kindled  -  progress saved");
         MusicManager.Instance?.PlayHealSfx();
+        SaveHere(player);
+    }
+
+    private void SaveHere(Player player)
+    {
+        var c = player.GetComponent<Player_Collectables>();
+        GameSave.SaveCheckpoint(gameObject.scene.name, checkpointName, c != null ? c.CurrentCoins : 0, player.CurrentHealth);
+    }
+
+    /// <summary>Resting at an already-lit shrine (interaction) refills flasks to 2 and saves.</summary>
+    public void Rest(Player player)
+    {
+        if (player == null || player.IsDead) return;
+        player.RestoreHealthTo(player.MaxHealth);
+        if (Inventory.Count("crimson_flask") < 2)
+            Inventory.Add("crimson_flask", 2 - Inventory.Count("crimson_flask"), null, false);
+        SaveHere(player);
     }
 
     private void SetLit(bool on, bool instant)

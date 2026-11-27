@@ -626,7 +626,7 @@ public static class BuildMenu
 
         // ---------- UI ----------
         var es = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-        es.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+        // The module creates its own default UI actions when none are assigned.
 
         var canvas = UIKit.MakeCanvas("Menu Canvas", 10);
         var ct = canvas.transform;
@@ -727,7 +727,8 @@ public static class BuildMenu
             "Risen from an unmarked grave, he walks the ruins of his kingdom to bring its traitors to judgement.</i></size>\n\n" +
             "<color=#E8C27A><b>CONTROLS</b></color>\n" +
             "<size=24>Move  <b>A / D</b>  or  <b>Arrow Keys</b>        Jump  <b>Space</b>  (press again to double jump)\n" +
-            "Attack  <b>J</b>        Roll  <b>Left Shift</b>        Block  <b>Right Mouse</b>        Heal  <b>H</b>        Pause  <b>Esc</b></size>\n\n" +
+            "Attack  <b>J</b> / <b>Left Mouse</b>     Roll  <b>Shift</b>     Block  <b>Right Mouse</b> / <b>K</b>     Heal  <b>H</b>\n" +
+            "Interact  <b>E</b>     Inventory  <b>I</b> / <b>Tab</b>     Pause  <b>Esc</b>     Gamepad fully supported</size>\n\n" +
             "<color=#E8C27A><b>CREDITS</b></color>\n" +
             "<size=22>Environment art by Anokolisa   •   Tiny RPG Mana Soul GUI by Gabriel \"tiopalada\" Lima (CC0)\n" +
             "Soulslike Knight hero sprites   •   Music from the \"Bonfires\" dark fantasy music pack</size>",

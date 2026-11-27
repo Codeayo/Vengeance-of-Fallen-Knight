@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(SpriteRenderer), typeof(Animator))]
 public class Player : MonoBehaviour
@@ -86,6 +87,13 @@ public class Player : MonoBehaviour
     ContactFilter2D groundContactFilter;
 
     public int CurrentHealth => currentHealth;
+    /// <summary>Base health plus character level, Heart Vessels and equipped charm.</summary>
+    public int MaxHealth => maxHealth + PlayerProgress.LevelHealthBonus + Inventory.MaxHealthBonus;
+    /// <summary>Base damage plus character level, weapon and tempering.</summary>
+    public int AttackDamage => attackDamage + PlayerProgress.LevelAttackBonus + Inventory.AttackBonus;
+    public int Defense => Inventory.DefenseBonus;
+    public bool IsWarded => Time.time < wardUntil;
+    float wardUntil;
     public bool IsDead => isDead;
     public bool IsRespawning => isRespawning;
 
@@ -111,14 +119,16 @@ public class Player : MonoBehaviour
     {
         jumpsRemaining = Mathf.Max(1, maxJumps);
 
-        currentHealth = GameSave.LoadHealth(maxHealth);
+        currentHealth = GameSave.LoadHealth(MaxHealth);
+        PlayerProgress.LeveledUp += OnLeveledUp;
+        Inventory.Changed += OnInventoryChanged;
 
         if (healthSlider != null)
         {
-            healthSlider.maxValue = maxHealth;
+            healthSlider.maxValue = MaxHealth;
             healthSlider.value = currentHealth;
         }
-        HealthChanged?.Invoke(currentHealth, maxHealth);
+        HealthChanged?.Invoke(currentHealth, MaxHealth);
 
         if (menuPanel != null)
             menuPanel.SetActive(false);
@@ -128,8 +138,12 @@ public class Player : MonoBehaviour
     {
         if (isDead || isRespawning) return;
 
-        if (PauseMenu.IsPaused)
+        if (PauseMenu.IsPaused || InventoryUI.IsOpen || ReadPanel.IsOpen)
+        {
+            if (rb != null) rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            if (anim != null) anim.SetBool(RUN, false);
             return;
+        }
 
         if (menuPanel != null && Input.GetKeyDown(menuKey))
             ToggleMenu();
@@ -138,6 +152,8 @@ public class Player : MonoBehaviour
             return;
 
         moveInput = Input.GetAxisRaw("Horizontal");
+        if (Mathf.Abs(moveInput) < 0.1f)
+            moveInput = PadMove();
 
         Move();
         Jump();
@@ -194,6 +210,43 @@ public class Player : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        PlayerProgress.LeveledUp -= OnLeveledUp;
+        Inventory.Changed -= OnInventoryChanged;
+    }
+
+    void OnLeveledUp(int level)
+    {
+        if (isDead) return;
+        currentHealth = MaxHealth;
+        HealthChanged?.Invoke(currentHealth, MaxHealth);
+        GameHUD.Instance?.ShowAreaTitle($"Level {level}", $"+{PlayerProgress.HealthPerLevel} health   +{PlayerProgress.AttackPerLevel} attack");
+        MusicManager.Instance?.PlayHealSfx();
+    }
+
+    void OnInventoryChanged()
+    {
+        if (isDead) return;
+        currentHealth = Mathf.Min(currentHealth, MaxHealth);
+        HealthChanged?.Invoke(currentHealth, MaxHealth);
+    }
+
+    public void GrantWard(float seconds)
+    {
+        wardUntil = Mathf.Max(wardUntil, Time.time + seconds);
+    }
+
+    // ---------------- INPUT (keyboard + gamepad) -----------------
+    static Gamepad Pad => Gamepad.current;
+    static float PadMove()
+    {
+        if (Pad == null) return 0f;
+        float x = Pad.leftStick.x.ReadValue();
+        if (Mathf.Abs(x) < 0.3f) x = Pad.dpad.x.ReadValue();
+        return Mathf.Abs(x) < 0.3f ? 0f : Mathf.Sign(x);
+    }
+
     private void OnDisable()
     {
         if (menuPanel != null && menuPanel.activeSelf)
@@ -232,7 +285,8 @@ public class Player : MonoBehaviour
     // ---------------- JUMP -----------------
     void Jump()
     {
-        bool jumpPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(jumpKey);
+        bool jumpPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(jumpKey) ||
+                           (Pad != null && Pad.buttonSouth.wasPressedThisFrame);
 
         try
         {
@@ -322,7 +376,9 @@ public class Player : MonoBehaviour
     // ---------------- ATTACK -----------------
     void Attack()
     {
-        if (attackPoint != null && Input.GetKeyDown(KeyCode.J) &&
+        bool attackPressed = Input.GetKeyDown(KeyCode.J) || Input.GetMouseButtonDown(0) ||
+                             (Pad != null && Pad.buttonWest.wasPressedThisFrame);
+        if (attackPoint != null && attackPressed &&
             Time.time > lastAttackTime + attackCooldown && !isRolling)
         {
             if (anim != null)
@@ -350,14 +406,15 @@ public class Player : MonoBehaviour
         {
             Transform target = h.transform.root;
             if (damagedTargets.Add(target))
-                h.SendMessageUpwards("TakeDamage", attackDamage, SendMessageOptions.DontRequireReceiver);
+                h.SendMessageUpwards("TakeDamage", AttackDamage, SendMessageOptions.DontRequireReceiver);
         }
     }
 
     // ---------------- ROLL -----------------
     void Roll()
     {
-        if (!isRolling && Input.GetKeyDown(KeyCode.LeftShift) &&
+        bool rollPressed = Input.GetKeyDown(KeyCode.LeftShift) || (Pad != null && Pad.buttonEast.wasPressedThisFrame);
+        if (!isRolling && rollPressed &&
             Time.time >= lastRollTime + rollCooldown)
             StartCoroutine(RollRoutine());
     }
@@ -383,7 +440,7 @@ public class Player : MonoBehaviour
     // ---------------- BLOCK -----------------
     void Block()
     {
-        isBlocking = Input.GetMouseButton(1);
+        isBlocking = Input.GetMouseButton(1) || Input.GetKey(KeyCode.K) || (Pad != null && Pad.leftTrigger.isPressed);
         if (anim != null)
             anim.SetBool(BLOCK, isBlocking);
     }
@@ -391,7 +448,8 @@ public class Player : MonoBehaviour
     // ---------------- HEAL -----------------
     void Heal()
     {
-        if (Input.GetKeyDown(KeyCode.H) &&
+        bool healPressed = Input.GetKeyDown(KeyCode.H) || (Pad != null && Pad.rightShoulder.wasPressedThisFrame);
+        if (healPressed &&
             collectables != null &&
             collectables.TryUseHealingFlask(this))
         {
@@ -410,15 +468,15 @@ public class Player : MonoBehaviour
 
     public bool TryHeal(int amount)
     {
-        if (isDead || amount <= 0 || currentHealth >= maxHealth)
+        if (isDead || amount <= 0 || currentHealth >= MaxHealth)
             return false;
 
         int previousHealth = currentHealth;
-        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        currentHealth = Mathf.Min(MaxHealth, currentHealth + amount);
 
         if (healthSlider != null)
             healthSlider.value = currentHealth;
-        HealthChanged?.Invoke(currentHealth, maxHealth);
+        HealthChanged?.Invoke(currentHealth, MaxHealth);
 
         return currentHealth > previousHealth;
     }
@@ -443,9 +501,12 @@ public class Player : MonoBehaviour
         if (!ignoreInvulnerability && (isRolling || Time.time < invulnerableUntil)) return;
         invulnerableUntil = Time.time + invulnerabilityAfterHit;
 
+        int reduced = Mathf.Max(1, amount - Defense);
+        if (IsWarded)
+            reduced = Mathf.Max(1, Mathf.CeilToInt(reduced * 0.5f));
         int appliedDamage = isBlocking
-            ? Mathf.Max(1, Mathf.CeilToInt(amount * blockedDamageMultiplier))
-            : amount;
+            ? Mathf.Max(1, Mathf.CeilToInt(reduced * blockedDamageMultiplier))
+            : reduced;
         currentHealth = Mathf.Max(0, currentHealth - appliedDamage);
 
         if (anim != null)
@@ -453,7 +514,7 @@ public class Player : MonoBehaviour
 
         if (healthSlider != null)
             healthSlider.value = currentHealth;
-        HealthChanged?.Invoke(currentHealth, maxHealth);
+        HealthChanged?.Invoke(currentHealth, MaxHealth);
 
         if (currentHealth <= 0)
             Die();
@@ -480,6 +541,16 @@ public class Player : MonoBehaviour
     public void SetRespawnPoint(Vector3 position)
     {
         respawnPoint = position;
+    }
+
+    public void TeleportTo(Vector3 position)
+    {
+        transform.position = position;
+        if (rb != null)
+        {
+            rb.position = position;
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     /// <summary>Fade out, move to the last checkpoint, fade back in (used by hazards).</summary>
@@ -541,10 +612,10 @@ public class Player : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
-        currentHealth = maxHealth;
+        currentHealth = MaxHealth;
         if (healthSlider != null)
             healthSlider.value = currentHealth;
-        HealthChanged?.Invoke(currentHealth, maxHealth);
+        HealthChanged?.Invoke(currentHealth, MaxHealth);
         invulnerableUntil = Time.time + 1.5f;
     }
 

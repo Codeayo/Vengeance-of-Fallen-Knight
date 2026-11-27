@@ -1,0 +1,421 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea9f49344c7b3d5458025bc1cf28283e, type: 3}
+  m_Name: ItemDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::ItemDatabase
+  items:
+  - id: crimson_flask
+    displayName: Crimson Flask
+    description: A flask of the knight's order, filled with blood-red restorative.
+      Shrines refill it.
+    category: 0
+    rarity: 0
+    icon: {fileID: 879190807148670241, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 9
+    heal: 35
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: verdant_tonic
+    displayName: Verdant Tonic
+    description: Brewed from grove herbs by the hermits who still remember the old
+      king.
+    category: 0
+    rarity: 1
+    icon: {fileID: -2060609966349096802, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 9
+    heal: 70
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: violet_draught
+    displayName: Violet Draught
+    description: A witch's ward. For a short while every blow lands softer.
+    category: 0
+    rarity: 2
+    icon: {fileID: -6147701080523913423, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 5
+    heal: 15
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 20
+  - id: ember_of_vengeance
+    displayName: Ember of Vengeance
+    description: A spark of the fury that raised you from the grave. Consume it to
+      grow stronger.
+    category: 0
+    rarity: 2
+    icon: {fileID: -8220416837663306231, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 9
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 120
+    wardSeconds: 0
+  - id: heart_vessel
+    displayName: Heart Vessel
+    description: A still-beating heart of the realm's fallen. Use it to permanently
+      raise your maximum health.
+    category: 7
+    rarity: 2
+    icon: {fileID: 1772071014133387322, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 9
+    heal: 0
+    maxHealthBonus: 15
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: prism_relic
+    displayName: Prism Relic
+    description: One of the six royal relics scattered when the crown fell. Collect
+      them all.
+    category: 7
+    rarity: 3
+    icon: {fileID: -8096589514781024112, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 6
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: soul_shard
+    displayName: Soul Shard
+    description: Crystallised remnant of a restless soul. Offer two at a shrine to
+      temper your blade.
+    category: 4
+    rarity: 1
+    icon: {fileID: -276370151951412973, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 99
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: verdant_shard
+    displayName: Verdant Shard
+    description: Living stone from the grove's heart. Offer two at a shrine to reinforce
+      your armor.
+    category: 4
+    rarity: 1
+    icon: {fileID: 6045360950777182210, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 99
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: crypt_key
+    displayName: Crypt Key
+    description: A bronze key taken from the Gravewarden's ring. It fits the sealed
+      crypts of the graveyard and the camp's stockade.
+    category: 5
+    rarity: 1
+    icon: {fileID: 3516941057862041409, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 9
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: frost_key
+    displayName: Frost Key
+    description: Ice-cold iron. It opens the frozen gates of the taiga.
+    category: 5
+    rarity: 1
+    icon: {fileID: 5855244246751365983, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 9
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: royal_key
+    displayName: Royal Key
+    description: The seal of the royal household. The castle's inner doors answer
+      to it.
+    category: 5
+    rarity: 2
+    icon: {fileID: -3087901378690207737, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 1, g: 1, b: 1, a: 1}
+    maxStack: 9
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: knights_longsword
+    displayName: Knight's Longsword
+    description: The blade you were buried with. Notched, but faithful.
+    category: 1
+    rarity: 0
+    icon: {fileID: 934021374360484066, guid: c7112ef5aa7a94f76a2df057028f0d50, type: 3}
+    iconTint: {r: 0.85, g: 0.88, b: 0.95, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: gravewarden_cleaver
+    displayName: Gravewarden's Cleaver
+    description: A heavy cleaver pried from the Gravewarden's bones.
+    category: 1
+    rarity: 1
+    icon: {fileID: 934021374360484066, guid: c7112ef5aa7a94f76a2df057028f0d50, type: 3}
+    iconTint: {r: 0.9, g: 0.75, b: 0.6, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 5
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: assassins_fang
+    displayName: Assassin's Fang
+    description: The blade that struck you down. Now it serves your vengeance.
+    category: 1
+    rarity: 1
+    icon: {fileID: 934021374360484066, guid: c7112ef5aa7a94f76a2df057028f0d50, type: 3}
+    iconTint: {r: 1, g: 0.85, b: 0.35, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 8
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: sporebane
+    displayName: Sporebane
+    description: A hermit's blade, quenched in grove sap. Rot cannot cling to it.
+    category: 1
+    rarity: 2
+    icon: {fileID: 934021374360484066, guid: c7112ef5aa7a94f76a2df057028f0d50, type: 3}
+    iconTint: {r: 0.6, g: 1, b: 0.6, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 11
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: frostbrand
+    displayName: Frostbrand
+    description: Forged in the taiga by smiths who refused the usurper.
+    category: 1
+    rarity: 2
+    icon: {fileID: 934021374360484066, guid: c7112ef5aa7a94f76a2df057028f0d50, type: 3}
+    iconTint: {r: 0.6, g: 0.85, b: 1, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 15
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: kingsbane
+    displayName: Kingsbane
+    description: The old king's own sword, hidden in the castle vault. It hungers
+      for the usurper.
+    category: 1
+    rarity: 3
+    icon: {fileID: 934021374360484066, guid: c7112ef5aa7a94f76a2df057028f0d50, type: 3}
+    iconTint: {r: 1, g: 0.7, b: 0.3, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 20
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: tattered_mail
+    displayName: Tattered Mail
+    description: Your burial mail, rusted through.
+    category: 2
+    rarity: 0
+    icon: {fileID: -3533194427785140210, guid: 7f85e1482b13d4860a732a5586bacc43, type: 3}
+    iconTint: {r: 0.85, g: 0.88, b: 0.95, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: boneplate_cuirass
+    displayName: Boneplate Cuirass
+    description: Plates of bone lashed over leather. Ugly, but it holds.
+    category: 2
+    rarity: 1
+    icon: {fileID: -3533194427785140210, guid: 7f85e1482b13d4860a732a5586bacc43, type: 3}
+    iconTint: {r: 0.95, g: 0.9, b: 0.8, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 2
+    xpGrant: 0
+    wardSeconds: 0
+  - id: ranger_leathers
+    displayName: Ranger's Leathers
+    description: Supple leathers from the camp's quartermaster.
+    category: 2
+    rarity: 1
+    icon: {fileID: -3533194427785140210, guid: 7f85e1482b13d4860a732a5586bacc43, type: 3}
+    iconTint: {r: 0.85, g: 0.65, b: 0.45, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 3
+    xpGrant: 0
+    wardSeconds: 0
+  - id: frostguard_mail
+    displayName: Frostguard Mail
+    description: Mail worn by the taiga's watch, rimed with frost that never melts.
+    category: 2
+    rarity: 2
+    icon: {fileID: -3533194427785140210, guid: 7f85e1482b13d4860a732a5586bacc43, type: 3}
+    iconTint: {r: 0.65, g: 0.85, b: 1, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 5
+    xpGrant: 0
+    wardSeconds: 0
+  - id: royal_guard_plate
+    displayName: Royal Guard Plate
+    description: Plate of the king's personal guard. You once wore its twin.
+    category: 2
+    rarity: 3
+    icon: {fileID: -3533194427785140210, guid: 7f85e1482b13d4860a732a5586bacc43, type: 3}
+    iconTint: {r: 1, g: 0.8, b: 0.45, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 8
+    xpGrant: 0
+    wardSeconds: 0
+  - id: ring_of_the_fallen
+    displayName: Ring of the Fallen
+    description: Every knight of the order wore one. Yours was buried with you.
+    category: 3
+    rarity: 2
+    icon: {fileID: -7562102865506012153, guid: 6f6503a81122b498999f4e9fbf4d201e, type: 3}
+    iconTint: {r: 1, g: 0.85, b: 0.5, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 20
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: frost_amulet
+    displayName: Amulet of the North
+    description: A taiga talisman that steadies a failing heart.
+    category: 3
+    rarity: 2
+    icon: {fileID: 7522748524402427941, guid: e5620a280cea44f13a58b1bf39f2f876, type: 3}
+    iconTint: {r: 0.7, g: 0.9, b: 1, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 35
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: broken_signet
+    displayName: Broken Signet
+    description: The signet of Sir Aldric, Knight-Captain of the Order. It was cut
+      from your hand the night you died.
+    category: 6
+    rarity: 2
+    icon: {fileID: 7522748524402427941, guid: e5620a280cea44f13a58b1bf39f2f876, type: 3}
+    iconTint: {r: 0.95, g: 0.8, b: 0.5, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: blood_contract
+    displayName: Blood Contract
+    description: 'A contract for your murder, signed in the usurper''s own hand:
+      Lord Malvric.'
+    category: 6
+    rarity: 2
+    icon: {fileID: -3048689805986162765, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+    iconTint: {r: 0.9, g: 0.6, b: 0.6, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: hermits_map
+    displayName: Hermit's Map
+    description: A hand-drawn map of the hidden pass through the taiga to the castle's
+      postern gate.
+    category: 6
+    rarity: 1
+    icon: {fileID: 5325344636134378644, guid: 9a308416a01e4446f954cd74f1859d5e, type: 3}
+    iconTint: {r: 0.85, g: 0.95, b: 0.75, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0
+  - id: frozen_crown
+    displayName: Shard of the Crown
+    description: A shard of the true king's crown, broken when Malvric seized the
+      throne.
+    category: 6
+    rarity: 3
+    icon: {fileID: 8132159233533810264, guid: d5c70e4b1a97143e1981c4cadc70ef57, type: 3}
+    iconTint: {r: 1, g: 0.85, b: 0.4, a: 1}
+    maxStack: 1
+    heal: 0
+    maxHealthBonus: 0
+    attackBonus: 0
+    defenseBonus: 0
+    xpGrant: 0
+    wardSeconds: 0

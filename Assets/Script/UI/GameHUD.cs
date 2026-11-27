@@ -19,6 +19,18 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private RectTransform healthFrame;
     [SerializeField] private Gradient healthColors;
 
+    [Header("Experience")]
+    [SerializeField] private Image xpFill;
+    [SerializeField] private TMP_Text levelText;
+
+    [Header("Pickup Feed")]
+    [SerializeField] private RectTransform feedRoot;
+    [SerializeField] private GameObject feedTemplate;
+
+    [Header("Interaction")]
+    [SerializeField] private CanvasGroup promptGroup;
+    [SerializeField] private TMP_Text promptText;
+
     [Header("Counters")]
     [SerializeField] private TMP_Text coinText;
     [SerializeField] private TMP_Text flaskText;
@@ -73,6 +85,66 @@ public class GameHUD : MonoBehaviour
             gameOverMenuButton.onClick.AddListener(() => { UIAudio.Back(); SceneFader.LoadScene(mainMenuScene); });
     }
 
+    private void OnEnable()
+    {
+        PlayerProgress.Changed += OnProgress;
+        Inventory.Collected += OnCollected;
+    }
+
+    private void OnDisable()
+    {
+        PlayerProgress.Changed -= OnProgress;
+        Inventory.Collected -= OnCollected;
+    }
+
+    private void OnProgress()
+    {
+        if (xpFill != null)
+            xpFill.fillAmount = PlayerProgress.XpToNext > 0 ? PlayerProgress.Xp / (float)PlayerProgress.XpToNext : 1f;
+        if (levelText != null)
+            levelText.text = $"LV {PlayerProgress.Level}";
+        if (player != null)
+            OnHealthChanged(player.CurrentHealth, player.MaxHealth);
+    }
+
+    private void OnCollected(ItemDefinition def, int amount)
+    {
+        if (feedRoot == null || feedTemplate == null || def == null)
+            return;
+        GameObject row = Instantiate(feedTemplate, feedRoot);
+        row.SetActive(true);
+        row.transform.SetAsLastSibling();
+        var icon = row.transform.Find("Icon")?.GetComponent<Image>();
+        if (icon != null) { icon.sprite = def.icon; icon.color = def.iconTint; }
+        var label = row.transform.Find("Label")?.GetComponent<TMP_Text>();
+        if (label != null)
+        {
+            string hex = ColorUtility.ToHtmlStringRGB(ItemDefinition.RarityColor(def.rarity));
+            label.text = $"<color=#{hex}>{def.displayName}</color>" + (amount > 1 ? $"  x{amount}" : "");
+        }
+        StartCoroutine(FeedRow(row.GetComponent<CanvasGroup>()));
+        while (feedRoot.childCount > 6)
+            DestroyImmediate(feedRoot.GetChild(1).gameObject);
+    }
+
+    private IEnumerator FeedRow(CanvasGroup g)
+    {
+        if (g == null) yield break;
+        g.alpha = 0f;
+        yield return FadeGroup(g, 1f, 0.2f);
+        yield return new WaitForSecondsRealtime(3f);
+        yield return FadeGroup(g, 0f, 0.8f);
+        if (g != null) Destroy(g.gameObject);
+    }
+
+    public void SetPrompt(string text)
+    {
+        if (promptGroup == null) return;
+        bool show = !string.IsNullOrEmpty(text);
+        if (show && promptText != null) promptText.text = text;
+        promptGroup.alpha = Mathf.MoveTowards(promptGroup.alpha, show ? 1f : 0f, 1f);
+    }
+
     private void OnDestroy()
     {
         if (Instance == this)
@@ -95,7 +167,7 @@ public class GameHUD : MonoBehaviour
         if (player != null)
         {
             player.HealthChanged += OnHealthChanged;
-            OnHealthChanged(player.CurrentHealth > 0 ? player.CurrentHealth : player.maxHealth, player.maxHealth);
+            OnHealthChanged(player.CurrentHealth > 0 ? player.CurrentHealth : player.MaxHealth, player.MaxHealth);
             shownHealth = trailHealth = targetHealth;
         }
 
@@ -107,6 +179,8 @@ public class GameHUD : MonoBehaviour
 
         if (controlsHint != null)
             StartCoroutine(HideControlsHint());
+        OnProgress();
+        SetPrompt(null);
     }
 
     private void Update()
@@ -229,12 +303,12 @@ public class GameHUD : MonoBehaviour
         if (bossTrail != null) bossTrail.fillAmount = Mathf.Max(bossTrailValue, bossShown);
     }
 
-    public void HideBoss(bool defeated)
+    public void HideBoss(bool defeated, string title = "Foe Vanquished", string subtitle = "")
     {
         if (bossGroup == null)
             return;
         if (defeated)
-            ShowAreaTitle("Gravewarden Vanquished", "The cursed seal is broken");
+            ShowAreaTitle(title, subtitle);
         StartCoroutine(FadeGroup(bossGroup, 0f, 1.2f));
     }
 

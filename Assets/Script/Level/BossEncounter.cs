@@ -7,9 +7,11 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class BossEncounter : MonoBehaviour
 {
-    [SerializeField] private PatrolSkeletonAI boss;
+    [SerializeField] private MonoBehaviour boss; // any IBossHealth (skeleton, ninja, Malvric)
     [SerializeField] private string bossName = "The Gravewarden";
     [SerializeField] private string arrivalMessage = "The Gravewarden rises to bar your path";
+    [SerializeField] private string defeatTitle = "Gravewarden Vanquished";
+    [SerializeField] private string defeatSubtitle = "The cursed seal is broken";
 
     private bool started;
     private bool finished;
@@ -33,12 +35,13 @@ public class BossEncounter : MonoBehaviour
         if (!started || finished)
             return;
 
-        float hp = boss != null && !boss.IsDead ? boss.HealthNormalized : 0f;
+        var b = boss as IBossHealth;
+        float hp = b != null && !b.IsDead ? b.HealthNormalized : 0f;
         GameHUD.Instance?.SetBossHealth(hp);
         if (hp <= 0f)
         {
             finished = true;
-            GameHUD.Instance?.HideBoss(true);
+            GameHUD.Instance?.HideBoss(true, defeatTitle, defeatSubtitle);
         }
     }
 }

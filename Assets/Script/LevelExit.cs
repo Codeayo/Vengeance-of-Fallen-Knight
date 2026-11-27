@@ -21,8 +21,13 @@ public class LevelExit : MonoBehaviour
             if (requiredDefeated == null)
                 return true;
             foreach (GameObject g in requiredDefeated)
-                if (g != null && g.activeInHierarchy)
+            {
+                if (g == null || !g.activeInHierarchy)
+                    continue;
+                EnemyCore core = g.GetComponent<EnemyCore>();
+                if (core == null || !core.IsDead)
                     return false;
+            }
             return true;
         }
     }

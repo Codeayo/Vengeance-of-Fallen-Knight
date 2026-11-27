@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
-public class YellowNinja : MonoBehaviour
+public class YellowNinja : MonoBehaviour, IBossHealth
 {
     [Header("Movement")]
     public float walkSpeed = 1.5f;
@@ -17,6 +17,8 @@ public class YellowNinja : MonoBehaviour
     [Header("Player Detection")]
     public float detectionRadius = 6f;
     public float attackRadius = 1f;
+    [Tooltip("Centre-to-centre distance at which the ninja starts a strike (bodies cannot overlap).")]
+    public float attackTriggerDistance = 2.8f;
     public LayerMask whatIsPlayer;
     public Vector3 detectionOffset;
 
@@ -32,6 +34,8 @@ public class YellowNinja : MonoBehaviour
 
     // internal state
     int currentHealth;
+    public float HealthNormalized => maxHealth > 0 ? Mathf.Clamp01(currentHealth / (float)maxHealth) : 0f;
+    public bool IsDead => isDead;
     bool facingLeft = true;
     bool isAttacking = false;
     bool isDead = false;
@@ -58,7 +62,7 @@ public class YellowNinja : MonoBehaviour
     void Update()
     {
         if (isDead) return;
-        if (player == null)
+        if (player == null || (player.GetComponent<Player>() != null && player.GetComponent<Player>().IsDead))
         {
             PatrolMovement();
             return;
@@ -72,7 +76,7 @@ public class YellowNinja : MonoBehaviour
 
         float dist = Vector2.Distance(transform.position, player.position);
 
-        if (dist <= attackRadius)
+        if (dist <= attackTriggerDistance)
         {
             TryStartAttack();
         }
@@ -131,6 +135,10 @@ public class YellowNinja : MonoBehaviour
         float targetX = player.position.x - moveDir * stopDistance;
         Vector2 targetPos = new Vector2(targetX, rb.position.y);
 
+        // Never chase off a ledge.
+        if (!EnemyCore.GroundAhead(EnemyCore.Feet(gameObject), moveDir, 0.7f, 2.5f))
+            return;
+
         if (rb != null)
             rb.position = Vector2.MoveTowards(
                 rb.position,
@@ -176,7 +184,6 @@ public class YellowNinja : MonoBehaviour
 
         if (hit)
         {
-            Debug.Log("Player hit by Yellow Ninja");
             Player playerHit = hit.GetComponentInParent<Player>();
             if (playerHit != null)
                 playerHit.TakeDamage(attackDamage);
@@ -212,6 +219,7 @@ public class YellowNinja : MonoBehaviour
     {
         isDead = true;
         isAttacking = true;
+        EnemyCore.ReportDeath(gameObject);
 
         CancelInvoke();
         if (animator != null)

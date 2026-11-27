@@ -183,6 +183,10 @@ public class Enemy_behaviour : MonoBehaviour
         // Don't move during attack animation
         if (anim == null || !anim.GetCurrentAnimatorStateInfo(0).IsName("Skel_attack"))
         {
+            float dir = Mathf.Sign(target.transform.position.x - transform.position.x);
+            // Never walk off a ledge while chasing.
+            if (!EnemyCore.GroundAhead(EnemyCore.Feet(gameObject), dir, 0.8f, 2.5f))
+                return;
             Vector2 targetPosition = new Vector2(target.transform.position.x, transform.position.y);
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
         }
@@ -201,6 +205,17 @@ public class Enemy_behaviour : MonoBehaviour
             anim.SetBool("Attack", true);
         cooling = true;
 
+        CancelInvoke(nameof(LandHit));
+        Invoke(nameof(LandHit), 0.3f);
+    }
+
+    // The axe lands after a short wind-up, and only if the knight is still in reach.
+    void LandHit()
+    {
+        if (isDead || target == null)
+            return;
+        if (Vector2.Distance(transform.position, target.transform.position) > attackDistance * 1.15f)
+            return;
         Player playerHit = target.GetComponentInParent<Player>();
         if (playerHit != null)
             playerHit.TakeDamage(attackDamage);
@@ -244,6 +259,8 @@ public class Enemy_behaviour : MonoBehaviour
     {
         isDead = true;
         cooling = false;
+        CancelInvoke();
+        EnemyCore.ReportDeath(gameObject);
 
         if (rb != null)
             rb.linearVelocity = Vector2.zero;

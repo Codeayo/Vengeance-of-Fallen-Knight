@@ -50,7 +50,7 @@ public static class PlayTests
         sb.Append(R(Mathf.Abs(col.bounds.min.y - groundY) < 0.15f, $"player stands on ground at spawn (feet {col.bounds.min.y:F2}, ground {groundY:F2})"));
         sb.Append(R(Mathf.Abs(RB.linearVelocity.y) < 0.05f, "player at rest after spawn"));
         sb.Append(R(GameHUD.Instance != null, "HUD present"));
-        sb.Append(R(p.CurrentHealth == p.maxHealth, $"health {p.CurrentHealth}/{p.maxHealth}"));
+        sb.Append(R(p.CurrentHealth == p.MaxHealth, $"health {p.CurrentHealth}/{p.MaxHealth}"));
         sb.Append(R(SceneManager.GetActiveScene().name == "Graveyard", "scene is Graveyard"));
         return sb.ToString();
     }
@@ -191,7 +191,7 @@ public static class PlayTests
         var rise = typeof(GameHUD).GetField("riseAgainButton", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(GameHUD.Instance) as UnityEngine.UI.Button;
         rise.onClick.Invoke();
         await Wait(2f);
-        sb.Append(R(!p.IsDead && p.CurrentHealth == p.maxHealth && p.enabled, $"Rise Again revives at full health (hp {p.CurrentHealth})"));
+        sb.Append(R(!p.IsDead && p.CurrentHealth == p.MaxHealth && p.enabled, $"Rise Again revives at full health (hp {p.CurrentHealth})"));
         sb.Append(R(Checkpoint.Active != null && Vector2.Distance(p.transform.position, Checkpoint.Active.RespawnPosition) < 2f, "revived at the last shrine"));
         return sb.ToString();
     }
@@ -221,10 +221,10 @@ public static class PlayTests
         var text = typeof(GameHUD).GetField("healthText", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(GameHUD.Instance) as TMPro.TMP_Text;
         p.TakeDamage(30, true);
         await Wait(1.2f);
-        sb.Append(R(Mathf.Abs(fill.fillAmount - p.CurrentHealth / (float)p.maxHealth) < 0.02f && text.text.StartsWith(p.CurrentHealth + " "), $"health bar follows damage ({text.text}, fill {fill.fillAmount:F2})"));
+        sb.Append(R(Mathf.Abs(fill.fillAmount - p.CurrentHealth / (float)p.MaxHealth) < 0.02f && text.text.StartsWith(p.CurrentHealth + " "), $"health bar follows damage ({text.text}, fill {fill.fillAmount:F2})"));
         p.TryHeal(25);
         await Wait(1.2f);
-        sb.Append(R(Mathf.Abs(fill.fillAmount - p.CurrentHealth / (float)p.maxHealth) < 0.02f, $"health bar follows healing ({text.text})"));
+        sb.Append(R(Mathf.Abs(fill.fillAmount - p.CurrentHealth / (float)p.MaxHealth) < 0.02f, $"health bar follows healing ({text.text})"));
         p.TryHeal(100);
         return sb.ToString();
     }

@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class CreditScene : MonoBehaviour
 {
     public float scrollSpeed = 40f;
-    [SerializeField] private float returnToMenuAfterSeconds = 30f;
+    [SerializeField] private float returnToMenuAfterSeconds = 75f;
     [SerializeField] private string mainMenuSceneName = "Main Menu";
 
     private RectTransform rectTransform;
@@ -27,10 +27,9 @@ public class CreditScene : MonoBehaviour
         if (!skipRequested && !creditsFinished)
             return;
 
-        GameSave.ClearProgress();
-        if (Application.CanStreamedLevelBeLoaded(mainMenuSceneName))
-            SceneManager.LoadScene(mainMenuSceneName);
-        else
-            Debug.LogWarning($"Scene '{mainMenuSceneName}' cannot be loaded. Check Build Settings.", this);
+        // The tale is complete: clear the finished run (chapters stay unlocked) and return to the menu.
+        enabled = false;
+        GameSave.NewRun();
+        SceneFader.LoadScene(mainMenuSceneName);
     }
 }

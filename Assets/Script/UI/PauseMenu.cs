@@ -55,7 +55,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Update()
     {
-        if (SceneFader.IsLoading || GameHUD.IsGameOverShowing)
+        if (SceneFader.IsLoading || GameHUD.IsGameOverShowing || InventoryUI.IsOpen || ReadPanel.IsOpen || ShrineMenu.IsOpen)
             return;
 
         bool toggle = (Keyboard.current != null &&
