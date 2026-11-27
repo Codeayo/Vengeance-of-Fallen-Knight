@@ -222,6 +222,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CreditScene
   scrollSpeed: 40
+  returnToMenuAfterSeconds: 75
+  mainMenuSceneName: Main Menu
 --- !u!1 &778946909
 GameObject:
   m_ObjectHideFlags: 0
@@ -258,7 +260,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -180}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 1500, y: 2600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &778946911
 MonoBehaviour:
@@ -280,7 +282,82 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Credits
+  m_text: '<size=140%><color=#E8C27A>EPILOGUE</color></size>
+
+
+    <i>Lord Malvric
+    lies dead at the foot of the throne he stole.
+
+    The eleven of the old guard
+    are avenged, and the truth of the night
+
+    Sir Aldric fell is carried to every
+    corner of the realm.
+
+
+    The Shard of the Crown is returned to the old king''s
+    line.
+
+    The fallen knight lays down his sword before the empty throne
+
+    and,
+    at last, is allowed to rest.</i>
+
+
+
+    <size=140%><color=#E8C27A>VENGEANCE OF
+    THE FALLEN KNIGHT</color></size>
+
+
+
+    <color=#E8C27A>Game Design & Development</color>
+
+    The
+    Vengeance of the Fallen Knight team
+
+
+    <color=#E8C27A>Hero</color>
+
+    Soulslike
+    Knight sprites
+
+
+    <color=#E8C27A>Environments</color>
+
+    Graveyard, Wood
+    Camp, Mushroom Grove, Final Taiga Forest and Castle Hall packs by Anokolisa
+
+
+    <color=#E8C27A>Interface</color>
+
+    Tiny
+    RPG Mana Soul GUI by Gabriel "tiopalada" Lima (CC0)
+
+
+    <color=#E8C27A>Items</color>
+
+    Platformer
+    Items free assets
+
+
+    <color=#E8C27A>Music</color>
+
+    "Bonfires" dark fantasy
+    music pack
+
+
+    <color=#E8C27A>Engine</color>
+
+    Unity 6
+
+
+
+    <size=120%>Thank
+    you for playing.</size>
+
+
+    <size=80%><color=#A9A3AA>Press Esc to return to
+    the menu</color></size>'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -307,14 +384,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 4
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -372,6 +449,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CreditScene
   scrollSpeed: 40
+  returnToMenuAfterSeconds: 75
+  mainMenuSceneName: Main Menu
 --- !u!1 &1307885552
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,6 +801,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2056722549}
   m_CullTransparentMesh: 1
+--- !u!1 &8800000000000000060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8800000000000000061}
+  - component: {fileID: 8800000000000000062}
+  m_Layer: 0
+  m_Name: MusicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8800000000000000061
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8800000000000000060}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8800000000000000062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8800000000000000060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fa8157271368443bb9237c046cc8c2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  musicSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  menuTrack: {fileID: 8300000, guid: 6d614153233094d87851eb7d15240639, type: 3}
+  graveyardTrack: {fileID: 8300000, guid: 0cdb9453705f24038bfa7be01384e20f, type: 3}
+  woodcampTrack: {fileID: 8300000, guid: dc4d742541d6240d9846d4be062063fb, type: 3}
+  groveTrack: {fileID: 8300000, guid: 6892ca60e92c6437586d73b496b187bd, type: 3}
+  taigaTrack: {fileID: 8300000, guid: 921af0c61420648d59d15314b3889f8b, type: 3}
+  castleTrack: {fileID: 8300000, guid: 6485c79c4af5b48c2818ff5810b20231, type: 3}
+  throneTrack: {fileID: 8300000, guid: 49fa1f57756ad41e5817bd34a272e487, type: 3}
+  creditsTrack: {fileID: 8300000, guid: f201760e56068401bbdb69ac2ed12b3d, type: 3}
+  musicSlider: {fileID: 0}
+  sfxSlider: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -729,3 +864,4 @@ SceneRoots:
   - {fileID: 1307885555}
   - {fileID: 1310479306}
   - {fileID: 1546929541}
+  - {fileID: 8800000000000000061}

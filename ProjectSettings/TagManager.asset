@@ -12,6 +12,7 @@ TagManager:
   - Chest
   - Diamond
   - Coin
+  - HealingPotion
   layers:
   - Default
   - TransparentFX

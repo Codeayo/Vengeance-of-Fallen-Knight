@@ -5,7 +5,55 @@ public class LevelExit : MonoBehaviour
 {
     [SerializeField] private string nextSceneName;
     [SerializeField] private bool requirePlayerTag = true;
+    [Tooltip("The exit stays sealed until every one of these is destroyed (e.g. the final encounter).")]
+    [SerializeField] private GameObject[] requiredDefeated;
+    [SerializeField] private string sealedMessage = "The gate is sealed by the Gravewarden's curse";
+    [SerializeField] private GameObject sealedVisual;
+    [SerializeField] private GameObject openVisual;
     private bool hasLoaded;
+    private bool wasOpen;
+    private float lastSealedMessage = -10f;
+
+    public bool IsOpen
+    {
+        get
+        {
+            if (requiredDefeated == null)
+                return true;
+            foreach (GameObject g in requiredDefeated)
+            {
+                if (g == null || !g.activeInHierarchy)
+                    continue;
+                EnemyCore core = g.GetComponent<EnemyCore>();
+                if (core == null || !core.IsDead)
+                    return false;
+            }
+            return true;
+        }
+    }
+
+    private void Start()
+    {
+        wasOpen = IsOpen;
+        RefreshVisuals(wasOpen);
+    }
+
+    private void Update()
+    {
+        bool open = IsOpen;
+        if (open == wasOpen)
+            return;
+        wasOpen = open;
+        RefreshVisuals(open);
+        if (open)
+            GameHUD.Instance?.ShowToast("The way forward is open");
+    }
+
+    private void RefreshVisuals(bool open)
+    {
+        if (sealedVisual != null) sealedVisual.SetActive(!open);
+        if (openVisual != null) openVisual.SetActive(open);
+    }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void RegisterSceneExitBootstrap()
@@ -39,7 +87,13 @@ public class LevelExit : MonoBehaviour
             case "Woodcamp":
                 return "Grove";
             case "Grove":
-                return "Main Menu";
+                return "Taiga";
+            case "Taiga":
+                return "Castle";
+            case "Castle":
+                return "ThroneRoom";
+            case "ThroneRoom":
+                return "Credits";
             default:
                 return string.Empty;
         }
@@ -50,11 +104,14 @@ public class LevelExit : MonoBehaviour
         switch (sceneName)
         {
             case "Graveyard":
-                return new Vector2(460f, 2.5f);
+                return new Vector2(110f, 2.5f);
             case "Woodcamp":
-                return new Vector2(120f, 2.5f);
+                return new Vector2(88f, 2.5f);
             case "Grove":
-                return new Vector2(72f, 2.5f);
+            case "Taiga":
+            case "Castle":
+            case "ThroneRoom":
+                return new Vector2(190f, 2.5f);
             default:
                 return Vector2.zero;
         }
@@ -65,7 +122,10 @@ public class LevelExit : MonoBehaviour
         nextSceneName = sceneName;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other) => TryExit(other);
+    private void OnTriggerStay2D(Collider2D other) => TryExit(other);
+
+    private void TryExit(Collider2D other)
     {
         if (hasLoaded || other == null)
             return;
@@ -73,23 +133,35 @@ public class LevelExit : MonoBehaviour
         if (requirePlayerTag && !other.CompareTag("Player"))
             return;
 
-        hasLoaded = true;
-        Time.timeScale = 1f;
-
-        if (SceneManagement.Instance != null)
+        if (!IsOpen)
         {
-            SceneManagement.Instance.LoadScene(nextSceneName);
+            if (Time.time - lastSealedMessage > 4f)
+            {
+                lastSealedMessage = Time.time;
+                GameHUD.Instance?.ShowToast(sealedMessage);
+            }
             return;
         }
 
-        if (Application.CanStreamedLevelBeLoaded(nextSceneName))
+        if (string.IsNullOrWhiteSpace(nextSceneName) ||
+            !Application.CanStreamedLevelBeLoaded(nextSceneName))
         {
-            SceneManager.LoadScene(nextSceneName);
+            Debug.LogWarning($"Next scene '{nextSceneName}' cannot be loaded. Check Build Settings.", this);
+            return;
         }
-        else
-        {
-            hasLoaded = false;
-            Debug.LogWarning($"Scene '{nextSceneName}' cannot be loaded. Check Build Settings and scene name.", this);
-        }
+
+        hasLoaded = true;
+        Time.timeScale = 1f;
+
+        Player player = other.GetComponentInParent<Player>();
+        Player_Collectables collectables = other.GetComponentInParent<Player_Collectables>();
+        GameSave.SaveProgress(
+            nextSceneName,
+            collectables != null ? collectables.CurrentCoins : GameSave.LoadCoins(),
+            player != null ? player.CurrentHealth : GameSave.LoadHealth(100),
+            collectables != null ? collectables.HealingFlasks : GameSave.LoadHealingFlasks()
+        );
+
+        SceneFader.LoadScene(nextSceneName);
     }
 }

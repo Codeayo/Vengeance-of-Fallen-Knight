@@ -26,6 +26,12 @@ public class MenuLoader : MonoBehaviour
 
     public void LoadGraveyard()
     {
+        LoadSceneByName(GameSave.GetSavedSceneOr("Graveyard"));
+    }
+
+    public void StartNewGame()
+    {
+        GameSave.ClearProgress();
         LoadSceneByName("Graveyard");
     }
 

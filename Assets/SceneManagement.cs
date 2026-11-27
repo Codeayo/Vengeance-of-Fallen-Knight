@@ -123,6 +123,7 @@ public class SceneManagement : MonoBehaviour
     public void LoadScene(string sceneName)
     {
         if (isLoading) return;
+        Time.timeScale = 1f;
         isLoading = true;
 
         if (string.IsNullOrEmpty(sceneName))

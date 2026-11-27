@@ -16,15 +16,15 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(transform.root.gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        // Scene-scoped: each scene's GameManager owns that scene's references
+        // (persisting it kept stale references to the previous scene's UI).
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     private void Start()
@@ -71,7 +71,8 @@ public class GameManager : MonoBehaviour
 
     public void PlayGame()
     {
-        string sceneName = "Graveyard";
+        Time.timeScale = 1f;
+        string sceneName = GameSave.GetSavedSceneOr("Graveyard");
 
         if (SceneManager.GetActiveScene().name == sceneName)
         {
@@ -89,6 +90,12 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogWarning($"{sceneName} scene cannot be loaded. Check Build Settings and scene name.");
         }
+    }
+
+    public void StartNewGame()
+    {
+        GameSave.ClearProgress();
+        PlayGame();
     }
 
     public void QuitGame()

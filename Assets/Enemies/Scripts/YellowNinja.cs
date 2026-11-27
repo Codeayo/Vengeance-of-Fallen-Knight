@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class YellowNinja : MonoBehaviour
+[RequireComponent(typeof(Rigidbody2D), typeof(Animator))]
+public class YellowNinja : MonoBehaviour, IBossHealth
 {
     [Header("Movement")]
     public float walkSpeed = 1.5f;
@@ -16,6 +17,8 @@ public class YellowNinja : MonoBehaviour
     [Header("Player Detection")]
     public float detectionRadius = 6f;
     public float attackRadius = 1f;
+    [Tooltip("Centre-to-centre distance at which the ninja starts a strike (bodies cannot overlap).")]
+    public float attackTriggerDistance = 2.8f;
     public LayerMask whatIsPlayer;
     public Vector3 detectionOffset;
 
@@ -31,6 +34,8 @@ public class YellowNinja : MonoBehaviour
 
     // internal state
     int currentHealth;
+    public float HealthNormalized => maxHealth > 0 ? Mathf.Clamp01(currentHealth / (float)maxHealth) : 0f;
+    public bool IsDead => isDead;
     bool facingLeft = true;
     bool isAttacking = false;
     bool isDead = false;
@@ -40,12 +45,15 @@ public class YellowNinja : MonoBehaviour
     Animator animator;
     Transform player;
 
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        currentHealth = maxHealth;
+        currentHealth = Mathf.Max(1, maxHealth);
+    }
 
+    void Start()
+    {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null)
             player = p.transform;
@@ -53,7 +61,12 @@ public class YellowNinja : MonoBehaviour
 
     void Update()
     {
-        if (player == null || isDead) return;
+        if (isDead) return;
+        if (player == null || (player.GetComponent<Player>() != null && player.GetComponent<Player>().IsDead))
+        {
+            PatrolMovement();
+            return;
+        }
 
         if (isAttacking)
         {
@@ -63,13 +76,13 @@ public class YellowNinja : MonoBehaviour
 
         float dist = Vector2.Distance(transform.position, player.position);
 
-        if (dist <= attackRadius)
+        if (dist <= attackTriggerDistance)
         {
             TryStartAttack();
         }
         else if (dist <= detectionRadius)
         {
-            ChasePlayer(dist);
+            ChasePlayer();
         }
         else
         {
@@ -81,8 +94,10 @@ public class YellowNinja : MonoBehaviour
     void PatrolMovement()
     {
         float dir = facingLeft ? -1f : 1f;
-        rb.linearVelocity = new Vector2(dir * walkSpeed, rb.linearVelocity.y);
-        animator.SetBool("Attack", false);
+        if (rb != null)
+            rb.linearVelocity = new Vector2(dir * walkSpeed, rb.linearVelocity.y);
+        if (animator != null)
+            animator.SetBool("Attack", false);
 
         if (groundCheckPoint != null)
         {
@@ -99,9 +114,10 @@ public class YellowNinja : MonoBehaviour
     }
 
     // ---------------- CHASE ----------------
-    void ChasePlayer(float distance)
+    void ChasePlayer()
     {
-        animator.SetBool("Attack", false);
+        if (animator != null)
+            animator.SetBool("Attack", false);
 
         float dirToPlayer = player.position.x - transform.position.x;
 
@@ -119,11 +135,16 @@ public class YellowNinja : MonoBehaviour
         float targetX = player.position.x - moveDir * stopDistance;
         Vector2 targetPos = new Vector2(targetX, rb.position.y);
 
-        rb.position = Vector2.MoveTowards(
-            rb.position,
-            targetPos,
-            chaseSpeed * Time.deltaTime
-        );
+        // Never chase off a ledge.
+        if (!EnemyCore.GroundAhead(EnemyCore.Feet(gameObject), moveDir, 0.7f, 2.5f))
+            return;
+
+        if (rb != null)
+            rb.position = Vector2.MoveTowards(
+                rb.position,
+                targetPos,
+                chaseSpeed * Time.deltaTime
+            );
     }
 
     // ---------------- ATTACK ----------------
@@ -135,8 +156,10 @@ public class YellowNinja : MonoBehaviour
         isAttacking = true;
         lastAttackTime = Time.time;
 
-        animator.SetBool("Attack", true);
-        rb.linearVelocity = Vector2.zero;
+        if (animator != null)
+            animator.SetBool("Attack", true);
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
 
         Invoke(nameof(DoDamage), 0.25f);
         Invoke(nameof(EndAttack), 0.6f);
@@ -161,7 +184,6 @@ public class YellowNinja : MonoBehaviour
 
         if (hit)
         {
-            Debug.Log("Player hit by Yellow Ninja");
             Player playerHit = hit.GetComponentInParent<Player>();
             if (playerHit != null)
                 playerHit.TakeDamage(attackDamage);
@@ -171,7 +193,8 @@ public class YellowNinja : MonoBehaviour
     void EndAttack()
     {
         isAttacking = false;
-        animator.SetBool("Attack", false);
+        if (animator != null)
+            animator.SetBool("Attack", false);
     }
 
     // ---------------- DAMAGE SYSTEM ----------------
@@ -179,8 +202,11 @@ public class YellowNinja : MonoBehaviour
     {
         if (isDead) return;
 
-        currentHealth -= amount;
-        animator.SetTrigger("Hurt");
+        if (amount <= 0) return;
+
+        currentHealth = Mathf.Max(0, currentHealth - amount);
+        if (animator != null)
+            animator.SetTrigger("Hurt");
 
         if (floatingTextPrefab != null && textSpawnPoint != null)
             Instantiate(floatingTextPrefab, textSpawnPoint.position, Quaternion.identity);
@@ -193,9 +219,13 @@ public class YellowNinja : MonoBehaviour
     {
         isDead = true;
         isAttacking = true;
+        EnemyCore.ReportDeath(gameObject);
 
-        animator.SetTrigger("Death");
-        rb.linearVelocity = Vector2.zero;
+        CancelInvoke();
+        if (animator != null)
+            animator.SetTrigger("Death");
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
 
         foreach (Collider2D c in GetComponents<Collider2D>())
             c.enabled = false;
