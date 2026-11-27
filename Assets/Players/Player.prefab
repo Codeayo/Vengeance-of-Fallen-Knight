@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 2701617740094895109}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.36, y: -1.54, z: 0}
+  m_LocalPosition: {x: -0.36, y: -1.68, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -46,7 +46,6 @@ GameObject:
   - component: {fileID: 7165660382330321531}
   - component: {fileID: 6161362428266241325}
   - component: {fileID: 3694138159326706301}
-  - component: {fileID: 4091962732068234861}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -218,15 +217,15 @@ MonoBehaviour:
   jumpForce: 14
   maxJumps: 2
   groundCheck: {fileID: 2418809293081309037}
-  groundCheckRadius: 0.12
+  groundCheckRadius: 0.2
   groundLayer:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 8
   attackPoint: {fileID: 4722975245648036525}
   attackRange: 0.8
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 65
   attackDamage: 10
   attackDelay: 0.12
   attackCooldown: 0.5
@@ -267,35 +266,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   currentCoin_Text: {fileID: 0}
---- !u!114 &4091962732068234861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4606576582462295184}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42610c06e9d6c4be2b616bb9518e6beb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Player
-  moveSpeed: 8
-  jumpForce: 14
-  groundCheck: {fileID: 2418809293081309037}
-  groundCheckRadius: 0.12
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  attackPoint: {fileID: 4722975245648036525}
-  attackRange: 0.8
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  attackDamage: 10
-  attackDelay: 0.12
-  attackCooldown: 0.5
-  healthSlider: {fileID: 0}
-  maxHealth: 100
+  healingFlaskSprite: {fileID: 879190807148670241, guid: 9c8feb6afe18846eaba8e052fa7611ea, type: 3}
+  startingHealingFlasks: 1
+  healingAmount: 35
 --- !u!1 &4662809889964354348
 GameObject:
   m_ObjectHideFlags: 0

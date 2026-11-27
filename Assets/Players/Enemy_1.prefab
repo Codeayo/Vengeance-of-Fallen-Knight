@@ -260,20 +260,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 7988199793180541160}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd02212a2e7554840b2ddccfe68d05f9, type: 3}
+  m_Script: {fileID: 11500000, guid: f6ab6a30a79084b61b15aa288c688e52, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::Enemy1
   maxHealth: 3
   walkSpeed: 1
   groundCheckPoint: {fileID: 5434112203817992171}
   distance: 0.7
   whatIsGround:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 8
   attackRangeRadius: 7
   whatIsPlayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 129
   player: {fileID: 9158141941879785636, guid: 7f3700648bf1c45458d04a40b992a748, type: 3}
   chaseSpeed: 2
   retrieveDistance: 3

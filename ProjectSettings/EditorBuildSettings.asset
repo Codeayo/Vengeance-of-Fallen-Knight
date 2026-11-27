@@ -10,19 +10,25 @@ EditorBuildSettings:
     guid: 0e339af5ae3594e3b86cdceaa52d4107
   - enabled: 1
     path: Assets/Scenes/Graveyard.unity
-    guid: 36e488264c3714564bcf500c7f7ccc60
+    guid: 9a0af6cdb4ea6476da06bf61f7bdbaca
   - enabled: 1
     path: Assets/Scenes/Woodcamp.unity
     guid: 8f68c9a84fadc494f9fb1e927309de07
   - enabled: 1
     path: Assets/Scenes/Grove.unity
     guid: da0576b05e9b047f1a688e1545773925
-  - enabled: 0
-    path: Assets/Scenes/TaigaForestScene.unity
-    guid: 4c3ae25d6cd474c2f8432decb2078ae7
-  - enabled: 0
-    path: Assets/Scenes/CastleHallScene.unity
-    guid: 1ed8d6ad7ba2c4ca89b3f575156fbc4d
+  - enabled: 1
+    path: Assets/Scenes/Taiga.unity
+    guid: efc3d0f9d7034d3cba4f4055e994b10a
+  - enabled: 1
+    path: Assets/Castle.unity
+    guid: b035ac1c5004a4132b69c2e8f4f935d7
+  - enabled: 1
+    path: Assets/Scenes/ThroneRoom.unity
+    guid: 79fc8bf2f3d248cb9b9d50b0f1909525
+  - enabled: 1
+    path: Assets/Scenes/Credits.unity
+    guid: 753b4b0dc30d149d0ad8b191db614641
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

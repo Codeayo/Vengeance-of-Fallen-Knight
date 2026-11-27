@@ -6,6 +6,7 @@ public class PatrolSkeletonAI : MonoBehaviour
     public Transform player;
     public Animator animator;
     public Rigidbody2D rb;
+    public Transform groundCheckPoint;
 
     [Header("Settings")]
     public float patrolSpeed = 1.2f;
@@ -13,40 +14,68 @@ public class PatrolSkeletonAI : MonoBehaviour
     public float chaseRange = 5f;
     public float attackRange = 1.2f;
     public float attackCooldown = 1f;
+    public float groundCheckDistance = 1.5f;
+    public LayerMask groundLayer;
+    public int attackDamage = 10;
 
-    int health = 50;
+    [SerializeField] int maxHealth = 50;
+    int health;
+
+    public float HealthNormalized => maxHealth > 0 ? Mathf.Clamp01(health / (float)maxHealth) : 0f;
+    public bool IsDead => isDead;
     float lastAttackTime = 0;
+    int patrolDirection = -1;
     bool isDead = false;
+
+    void Awake()
+    {
+        health = Mathf.Max(1, maxHealth);
+    }
 
     void Start()
     {
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+            patrolDirection = spriteRenderer.flipX ? -1 : 1;
+
+        if (groundCheckPoint == null)
+            groundCheckPoint = transform.Find("GroundCheck");
+
+        if (groundLayer.value == 0)
+            groundLayer = LayerMask.GetMask("Ground");
+
         if (player == null)
         {
             GameObject p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) player = p.transform;
         }
-
-        if (animator == null)
-            animator = GetComponent<Animator>();
-
-        if (rb == null)
-            rb = GetComponent<Rigidbody2D>();
     }
 
     void Update()
     {
-        if (isDead || player == null) return;
+        if (isDead) return;
+        if (player == null)
+        {
+            Patrol();
+            return;
+        }
 
         float dist = Vector2.Distance(transform.position, player.position);
 
-        Flip();
-
         if (dist <= attackRange)
         {
+            FacePlayer();
             PlayerInRange();
         }
         else if (dist <= chaseRange)
         {
+            FacePlayer();
             PlayerDetected();
         }
         else
@@ -64,34 +93,57 @@ public class PatrolSkeletonAI : MonoBehaviour
             animator.SetBool("PlayerInRange", false);
         }
 
-        // Walk in facing direction. Positive x means facing right, so move right.
-        float moveDir = (transform.localScale.x >= 0) ? 1f : -1f;
+        if (groundCheckPoint != null)
+        {
+            Vector3 checkPosition = groundCheckPoint.position;
+            checkPosition.x = transform.position.x + Mathf.Abs(groundCheckPoint.localPosition.x) * patrolDirection;
+            if (!Physics2D.Raycast(checkPosition, Vector2.down, groundCheckDistance, groundLayer))
+                patrolDirection *= -1;
+        }
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = patrolDirection < 0;
+
         if (rb != null)
-            rb.linearVelocity = new Vector2(moveDir * patrolSpeed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(patrolDirection * patrolSpeed, rb.linearVelocity.y);
     }
 
     // ---------------- STATE: CHASE ----------------
     void PlayerDetected()
     {
-        animator.SetBool("PlayerDetected", true);
-        animator.SetBool("PlayerInRange", false);
+        if (animator != null)
+        {
+            animator.SetBool("PlayerDetected", true);
+            animator.SetBool("PlayerInRange", false);
+        }
 
         Vector2 dir = (player.position - transform.position).normalized;
-        rb.linearVelocity = new Vector2(dir.x * chaseSpeed, rb.linearVelocity.y);
+        if (rb != null)
+            rb.linearVelocity = new Vector2(dir.x * chaseSpeed, rb.linearVelocity.y);
     }
 
     // ---------------- STATE: ATTACK ----------------
     void PlayerInRange()
     {
-        animator.SetBool("PlayerDetected", false);
-        animator.SetBool("PlayerInRange", true);
+        if (animator != null)
+        {
+            animator.SetBool("PlayerDetected", false);
+            animator.SetBool("PlayerInRange", true);
+        }
 
-        rb.linearVelocity = Vector2.zero;
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
 
         if (Time.time - lastAttackTime >= attackCooldown)
         {
             lastAttackTime = Time.time;
-            animator.SetTrigger("Attack");
+            if (animator != null)
+                animator.SetTrigger("Attack");
+
+            Player playerCharacter = player.GetComponentInParent<Player>();
+            if (playerCharacter != null)
+                playerCharacter.TakeDamage(attackDamage);
         }
     }
 
@@ -99,9 +151,11 @@ public class PatrolSkeletonAI : MonoBehaviour
     public void TakeDamage(int dmg)
     {
         if (isDead) return;
+        if (dmg <= 0) return;
 
         health -= dmg;
-        animator.SetTrigger("Hurt");
+        if (animator != null)
+            animator.SetTrigger("Hurt");
 
         if (health <= 0)
             Die();
@@ -110,22 +164,25 @@ public class PatrolSkeletonAI : MonoBehaviour
     void Die()
     {
         isDead = true;
-        rb.linearVelocity = Vector2.zero;
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
 
-        animator.SetBool("Dead", true);
+        if (animator != null)
+            animator.SetBool("Dead", true);
 
-        foreach (Collider2D c in GetComponents<Collider2D>())
+        foreach (Collider2D c in GetComponentsInChildren<Collider2D>())
             c.enabled = false;
 
         Destroy(gameObject, 3f);
     }
 
     // ---------------- LOOK AT PLAYER ----------------
-    void Flip()
+    void FacePlayer()
     {
-        if (player.position.x > transform.position.x)
-            transform.localScale = new Vector3(1, 1, 1);
-        else
-            transform.localScale = new Vector3(-1, 1, 1);
+        patrolDirection = player.position.x >= transform.position.x ? 1 : -1;
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = patrolDirection < 0;
     }
 }

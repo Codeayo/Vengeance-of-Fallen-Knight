@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Tilemaps;
 
 public static class GraveyardSetup
 {
@@ -15,7 +14,6 @@ public static class GraveyardSetup
         if (scene.name != "Graveyard")
             return;
 
-        CreateFallbackGround();
 
         Camera mainCamera = Camera.main;
         if (mainCamera != null)
@@ -32,21 +30,5 @@ public static class GraveyardSetup
             if (!musicManager.musicSource.isPlaying && musicManager.musicSource.clip != null)
                 musicManager.musicSource.Play();
         }
-    }
-
-    private static void CreateFallbackGround()
-    {
-        TilemapCollider2D[] tilemapColliders = Object.FindObjectsByType<TilemapCollider2D>(FindObjectsSortMode.None);
-        foreach (TilemapCollider2D tilemapCollider in tilemapColliders)
-        {
-            if (tilemapCollider.enabled && !tilemapCollider.isTrigger)
-                return;
-        }
-
-        GameObject ground = new GameObject("Graveyard Ground Collision Fallback");
-        ground.transform.position = new Vector2(230f, -1.2f);
-
-        BoxCollider2D collider = ground.AddComponent<BoxCollider2D>();
-        collider.size = new Vector2(500f, 0.5f);
     }
 }

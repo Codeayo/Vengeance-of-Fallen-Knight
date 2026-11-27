@@ -1,7 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(SpriteRenderer), typeof(Animator))]
 public class Player : MonoBehaviour
 {
     [Header("Menu")]
@@ -19,6 +21,11 @@ public class Player : MonoBehaviour
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
     [SerializeField] private int maxJumps = 2;
 
+    [Header("Roll")]
+    [SerializeField] private float rollSpeed = 12f;
+    [SerializeField] private float rollDuration = 0.35f;
+    [SerializeField] private float rollCooldown = 0.8f;
+
     [Header("Ground Check")]
     public Transform groundCheck;
     public float groundCheckRadius = 0.25f;
@@ -31,10 +38,18 @@ public class Player : MonoBehaviour
     public int attackDamage = 10;
     public float attackDelay = 0.12f;
     public float attackCooldown = 0.5f;
+    [SerializeField, Range(0f, 1f)] private float blockedDamageMultiplier = 0.25f;
 
     [Header("Health")]
     public Slider healthSlider;
     public int maxHealth = 100;
+    [SerializeField] private float invulnerabilityAfterHit = 0.6f;
+    [SerializeField] private Color hurtFlashColor = new Color(1f, 0.35f, 0.35f, 1f);
+
+    /// <summary>(current, max) after any health change.</summary>
+    public event System.Action<int, int> HealthChanged;
+    /// <summary>Raised once when the player dies.</summary>
+    public event System.Action Died;
 
     // Animator parameters
     const string RUN = "IsRunning";
@@ -45,33 +60,65 @@ public class Player : MonoBehaviour
     const string HEAL = "IsHealing";
     const string BLOCK = "IsBlocking";
     const string DEATH = "Death";
+    const string IS_DEAD = "IsDead";
 
     Rigidbody2D rb;
     SpriteRenderer sr;
     Animator anim;
+    Player_Collectables collectables;
+    Vector3 attackPointFacingRightPosition;
 
     float moveInput;
     float lastAttackTime;
+    float lastRollTime;
     int currentHealth;
     bool isDead = false;
+    bool isRespawning;
+    float invulnerableUntil;
+    Vector3 respawnPoint;
+    Color baseColor = Color.white;
+    bool isBlocking;
+    bool isRolling;
     bool warnedAboutGroundLayer;
     bool warnedAboutMissingGroundCollider;
     int jumpsRemaining;
+    readonly List<Collider2D> groundHits = new List<Collider2D>(4);
+    ContactFilter2D groundContactFilter;
 
-    void Start()
+    public int CurrentHealth => currentHealth;
+    public bool IsDead => isDead;
+    public bool IsRespawning => isRespawning;
+
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        collectables = GetComponent<Player_Collectables>();
+
+        groundContactFilter.SetLayerMask(groundLayer);
+        groundContactFilter.useTriggers = false;
+
+        if (attackPoint != null)
+            attackPointFacingRightPosition = attackPoint.localPosition;
+
+        if (sr != null)
+            baseColor = sr.color;
+        respawnPoint = transform.position;
+    }
+
+    void Start()
+    {
         jumpsRemaining = Mathf.Max(1, maxJumps);
 
-        currentHealth = maxHealth;
+        currentHealth = GameSave.LoadHealth(maxHealth);
 
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
-            healthSlider.value = maxHealth;
+            healthSlider.value = currentHealth;
         }
+        HealthChanged?.Invoke(currentHealth, maxHealth);
 
         if (menuPanel != null)
             menuPanel.SetActive(false);
@@ -79,9 +126,12 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (isDead) return;
+        if (isDead || isRespawning) return;
 
-        if (Input.GetKeyDown(menuKey))
+        if (PauseMenu.IsPaused)
+            return;
+
+        if (menuPanel != null && Input.GetKeyDown(menuKey))
             ToggleMenu();
 
         if (menuPanel != null && menuPanel.activeSelf)
@@ -155,11 +205,28 @@ public class Player : MonoBehaviour
     // ---------------- MOVEMENT -----------------
     void Move()
     {
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
-        anim.SetBool(RUN, Mathf.Abs(moveInput) > 0.1f);
+        if (rb == null || isRolling)
+            return;
 
-        if (moveInput > 0) sr.flipX = false;
-        if (moveInput < 0) sr.flipX = true;
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        if (anim != null)
+            anim.SetBool(RUN, Mathf.Abs(moveInput) > 0.1f);
+
+        if (sr != null)
+        {
+            if (moveInput > 0) sr.flipX = false;
+            if (moveInput < 0) sr.flipX = true;
+        }
+
+        if (attackPoint != null && sr != null)
+        {
+            float direction = sr.flipX ? -1f : 1f;
+            attackPoint.localPosition = new Vector3(
+                Mathf.Abs(attackPointFacingRightPosition.x) * direction,
+                attackPointFacingRightPosition.y,
+                attackPointFacingRightPosition.z
+            );
+        }
     }
 
     // ---------------- JUMP -----------------
@@ -183,7 +250,8 @@ public class Player : MonoBehaviour
         if (jumpPressed && jumpsRemaining > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            anim.SetTrigger(JUMP);
+            if (anim != null)
+                anim.SetTrigger(JUMP);
             jumpsRemaining--;
         }
     }
@@ -201,23 +269,51 @@ public class Player : MonoBehaviour
             return false;
         }
 
+        Collider2D playerCollider = GetComponent<Collider2D>();
+        groundHits.Clear();
+        groundContactFilter.SetLayerMask(groundLayer);
+        groundContactFilter.useTriggers = false;
+
         if (groundCheck != null)
         {
-            bool grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-            if (!grounded && !warnedAboutMissingGroundCollider && rb.linearVelocity.y < -5f)
-            {
-                Debug.LogWarning("Player is falling without detecting ground. Check the Graveyard tilemap collider and Ground layer.", this);
-                warnedAboutMissingGroundCollider = true;
-            }
-
-            return grounded;
+            Physics2D.OverlapCircle(
+                groundCheck.position,
+                groundCheckRadius,
+                groundContactFilter,
+                groundHits
+            );
+        }
+        else if (playerCollider != null)
+        {
+            // Thin box just under the collider's feet; follows the collider when the sprite flips.
+            Bounds b = playerCollider.bounds;
+            Vector2 origin = new Vector2(b.center.x, b.min.y - 0.06f);
+            Physics2D.OverlapBox(
+                origin,
+                new Vector2(b.size.x * 0.85f, 0.12f),
+                0f,
+                groundContactFilter,
+                groundHits
+            );
+        }
+        else
+        {
+            return false;
         }
 
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
+        foreach (Collider2D hit in groundHits)
         {
-            Vector2 origin = (Vector2)transform.position + new Vector2(0f, -col.bounds.extents.y - 0.02f);
-            return Physics2D.OverlapCircle(origin, Mathf.Max(groundCheckRadius, 0.12f), groundLayer);
+            if (hit != null && hit.attachedRigidbody != rb)
+                return true;
+        }
+
+        if (!warnedAboutMissingGroundCollider && rb.linearVelocity.y < -5f)
+        {
+            Debug.LogWarning(
+                $"Player is falling without detecting ground in scene '{gameObject.scene.name}'. Check this scene's solid colliders and Ground layer.",
+                this
+            );
+            warnedAboutMissingGroundCollider = true;
         }
 
         return false;
@@ -226,9 +322,11 @@ public class Player : MonoBehaviour
     // ---------------- ATTACK -----------------
     void Attack()
     {
-        if (Input.GetKeyDown(KeyCode.J) && Time.time > lastAttackTime + attackCooldown)
+        if (attackPoint != null && Input.GetKeyDown(KeyCode.J) &&
+            Time.time > lastAttackTime + attackCooldown && !isRolling)
         {
-            anim.SetTrigger(ATTACK);
+            if (anim != null)
+                anim.SetTrigger(ATTACK);
             lastAttackTime = Time.time;
             StartCoroutine(DoDamage());
         }
@@ -238,36 +336,67 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(attackDelay);
 
+        if (attackPoint == null)
+            yield break;
+
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             attackPoint.position,
             attackRange,
             enemyLayer
         );
 
+        var damagedTargets = new System.Collections.Generic.HashSet<Transform>();
         foreach (var h in hits)
-            h.SendMessage("TakeDamage", attackDamage, SendMessageOptions.DontRequireReceiver);
+        {
+            Transform target = h.transform.root;
+            if (damagedTargets.Add(target))
+                h.SendMessageUpwards("TakeDamage", attackDamage, SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     // ---------------- ROLL -----------------
     void Roll()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (!isRolling && Input.GetKeyDown(KeyCode.LeftShift) &&
+            Time.time >= lastRollTime + rollCooldown)
+            StartCoroutine(RollRoutine());
+    }
+
+    private IEnumerator RollRoutine()
+    {
+        isRolling = true;
+        lastRollTime = Time.time;
+
+        if (anim != null)
             anim.SetTrigger(ROLL);
+
+        float direction = sr != null && sr.flipX ? -1f : 1f;
+        rb.linearVelocity = new Vector2(direction * rollSpeed, rb.linearVelocity.y);
+        yield return new WaitForSeconds(rollDuration);
+
+        if (rb != null)
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+
+        isRolling = false;
     }
 
     // ---------------- BLOCK -----------------
     void Block()
     {
-        anim.SetBool(BLOCK, Input.GetMouseButton(1));
+        isBlocking = Input.GetMouseButton(1);
+        if (anim != null)
+            anim.SetBool(BLOCK, isBlocking);
     }
 
     // ---------------- HEAL -----------------
     void Heal()
     {
-        if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H) &&
+            collectables != null &&
+            collectables.TryUseHealingFlask(this))
         {
-            HealPlayer(20);
-            anim.SetBool(HEAL, true);
+            if (anim != null)
+                anim.SetBool(HEAL, true);
             StartCoroutine(StopHealAnim());
         }
     }
@@ -275,48 +404,177 @@ public class Player : MonoBehaviour
     IEnumerator StopHealAnim()
     {
         yield return new WaitForSeconds(0.5f);
-        anim.SetBool(HEAL, false);
+        if (anim != null)
+            anim.SetBool(HEAL, false);
     }
 
-    void HealPlayer(int amount)
+    public bool TryHeal(int amount)
     {
+        if (isDead || amount <= 0 || currentHealth >= maxHealth)
+            return false;
+
+        int previousHealth = currentHealth;
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
 
         if (healthSlider != null)
             healthSlider.value = currentHealth;
+        HealthChanged?.Invoke(currentHealth, maxHealth);
+
+        return currentHealth > previousHealth;
+    }
+
+    /// <summary>Raises health to at least the given amount (used by checkpoints).</summary>
+    public void RestoreHealthTo(int amount)
+    {
+        if (isDead || currentHealth >= amount)
+            return;
+        TryHeal(amount - currentHealth);
     }
 
     // ---------------- TAKE DAMAGE -----------------
     public void TakeDamage(int amount)
     {
-        if (isDead) return;
+        TakeDamage(amount, false);
+    }
 
-        currentHealth -= amount;
-        anim.SetTrigger(HURT);
+    public void TakeDamage(int amount, bool ignoreInvulnerability)
+    {
+        if (isDead || isRespawning || amount <= 0) return;
+        if (!ignoreInvulnerability && (isRolling || Time.time < invulnerableUntil)) return;
+        invulnerableUntil = Time.time + invulnerabilityAfterHit;
+
+        int appliedDamage = isBlocking
+            ? Mathf.Max(1, Mathf.CeilToInt(amount * blockedDamageMultiplier))
+            : amount;
+        currentHealth = Mathf.Max(0, currentHealth - appliedDamage);
+
+        if (anim != null)
+            anim.SetTrigger(HURT);
 
         if (healthSlider != null)
             healthSlider.value = currentHealth;
+        HealthChanged?.Invoke(currentHealth, maxHealth);
 
         if (currentHealth <= 0)
             Die();
+        else
+            StartCoroutine(HurtFlash());
+    }
+
+    IEnumerator HurtFlash()
+    {
+        if (sr == null)
+            yield break;
+        float end = Time.time + invulnerabilityAfterHit;
+        while (Time.time < end && !isDead)
+        {
+            sr.color = hurtFlashColor;
+            yield return new WaitForSeconds(0.06f);
+            sr.color = new Color(baseColor.r, baseColor.g, baseColor.b, 0.55f);
+            yield return new WaitForSeconds(0.06f);
+        }
+        sr.color = baseColor;
+    }
+
+    // ---------------- RESPAWN -----------------
+    public void SetRespawnPoint(Vector3 position)
+    {
+        respawnPoint = position;
+    }
+
+    /// <summary>Fade out, move to the last checkpoint, fade back in (used by hazards).</summary>
+    public IEnumerator RespawnRoutine()
+    {
+        if (isRespawning)
+            yield break;
+        isRespawning = true;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+        }
+
+        if (GameHUD.Instance != null)
+            yield return GameHUD.Instance.FadeScreen(1f, 0.25f);
+        else
+            yield return new WaitForSeconds(0.25f);
+
+        transform.position = respawnPoint;
+        if (rb != null)
+        {
+            rb.position = respawnPoint;
+            rb.simulated = true;
+            rb.linearVelocity = Vector2.zero;
+        }
+        invulnerableUntil = Time.time + 1f;
+        isRespawning = false;
+
+        if (GameHUD.Instance != null)
+            yield return GameHUD.Instance.FadeScreen(0f, 0.35f);
+    }
+
+    /// <summary>Bring a dead player back at the last checkpoint with full health.</summary>
+    public void Revive()
+    {
+        StopAllCoroutines();
+        isDead = false;
+        isRespawning = false;
+        enabled = true;
+        foreach (Collider2D c in GetComponents<Collider2D>())
+            c.enabled = true;
+
+        if (anim != null)
+        {
+            anim.SetBool(IS_DEAD, false);
+            anim.Rebind();
+            anim.Update(0f);
+        }
+
+        if (sr != null)
+            sr.color = baseColor;
+
+        transform.position = respawnPoint;
+        if (rb != null)
+        {
+            rb.simulated = true;
+            rb.position = respawnPoint;
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        currentHealth = maxHealth;
+        if (healthSlider != null)
+            healthSlider.value = currentHealth;
+        HealthChanged?.Invoke(currentHealth, maxHealth);
+        invulnerableUntil = Time.time + 1.5f;
     }
 
     // ---------------- DEATH -----------------
     void Die()
     {
         isDead = true;
-        anim.SetBool(DEATH, true);
-        rb.linearVelocity = Vector2.zero;
+        if (anim != null)
+        {
+            anim.SetBool(IS_DEAD, true);
+            anim.SetTrigger(DEATH);
+        }
+
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
 
         foreach (Collider2D c in GetComponents<Collider2D>())
             c.enabled = false;
 
-        if (GameManager.Instance != null)
+        if (sr != null)
+            sr.color = baseColor;
+
+        Died?.Invoke();
+        if (GameHUD.Instance != null)
+            GameHUD.Instance.ShowGameOver(this);
+        else if (GameManager.Instance != null)
             GameManager.Instance.TriggerGameOverBackground();
 
+        // The player object is kept (not destroyed) so it can rise again at the last checkpoint.
         this.enabled = false;
-
-        Destroy(gameObject, 2f);
     }
 
     // ---------------- GIZMOS -----------------
