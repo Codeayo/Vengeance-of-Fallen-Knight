@@ -1,0 +1,126 @@
+          default=CrossFadeStart
+          [Animations] clip=CrossFadeEnd 1.00s loop=False speed=1
+             -> CrossFadeStart exit=False@0.75 dur=0.00 cond=StartI0
+          [CrossFadeStart] clip=CrossFadeStart 1.00s loop=False speed=1
+        ## Assets/Animations/enemy_animator.controller params=
+          default=
+        ## Assets/Animations/EnemyAnimation/Enemy.controller params=Attack:B,canWalk:B
+          default=Enemy_idle
+          [Enemy_idle] clip=Enemy_idle 1.02s loop=True speed=1
+             -> Enemy_attack exit=False@0.75 dur=0.25 cond=AttackI0
+             -> Enemy_walk exit=False@0.45 dur=0.25 cond=canWalkI0
+          [Enemy_walk] clip=Enemy_walk 0.88s loop=True speed=1
+             -> Enemy_idle exit=False@0.47 dur=0.25 cond=canWalkI0
+             -> Enemy_attack exit=False@0.56 dur=0.24 cond=AttackI0
+          [Enemy_attack] clip=Enemy_attack 1.02s loop=True speed=1
+             -> Enemy_idle exit=True@0.75 dur=0.25 cond=AttackI0
+        ## Assets/Animations/PatrolSkeleton.controller params=Hurt:T,PlayerInRange:B,PlayerDetected:B,Attack:T,Dead:B,Protect:T
+          default=Walk
+          [Walk] clip=Walk 0.85s loop=False speed=1
+             -> Idle exit=True@0.71 dur=0.00 cond=PlayerInRangeI0
+          [EnemyPatrol Attack1] clip=EnemyPatrol Attack1 0.85s loop=True speed=1
+          [Enemypatrol attack2] clip=Enemypatrol attack2 0.85s loop=True speed=1
+          [EnemyPatrol Death] clip=EnemyPatrol damage 0.87s loop=True speed=1
+          [Idle] clip=Idle 0.87s loop=True speed=1
+             -> RunAttack exit=False@0.71 dur=0.00 cond=PlayerDetectedI0
+          [Protect] clip=Protect 0.02s loop=True speed=1
+             -> Idle exit=False@0.00 dur=0.00 cond=
+          [RunAttack] clip=RunAttack 0.85s loop=True speed=1
+             -> EnemyPatrol Attack1 exit=False@0.71 dur=0.00 cond=AttackI0
+          [Hurt] clip=Hurt 0.85s loop=True speed=1
+          ANY -> Hurt cond=HurtI0 exit=False
+          ANY -> EnemyPatrol Death cond= exit=False
+          ANY -> Protect cond=ProtectI0 exit=False
+          default=Coin_Animation
+          [Coin_Animation] clip=Coin_Animation 0.67s loop=True speed=1
+             -> Coin_Collected exit=False@0.63 dur=0.00 cond=CollectI0
+          [Coin_Collected] clip=Coin_Collected 1.00s loop=False speed=1
+          default=EndingTransition
+          [EndingTransition] clip=EndingTransition 0.83s loop=False speed=1
+          default=StartingTransition
+          [StartingTransition] clip=StartingTransition 0.60s loop=False speed=1
+          default=Fade_In
+          [Fade_In] clip=Fade_In 1.00s loop=False speed=1
+        ## Assets/Enemy/Skeleton 1/Files/Skeleton Attack.ase params=
+          default=attack
+          [attack] clip=attack 1.00s loop=True speed=1
+          [return] clip=return 0.80s loop=True speed=1
+        ## Assets/Enemy/Skeleton 1/Files/Skeleton Dead.ase params=
+          default=dead
+          [dead] clip=dead 1.50s loop=True speed=1
+        ## Assets/Enemy/Skeleton 1/Files/Skeleton Hit.ase params=
+          default=hit
+          [hit] clip=hit 0.80s loop=True speed=1
+        ## Assets/Enemy/Skeleton 1/Files/Skeleton Idle.ase params=
+          default=idle
+          [idle] clip=idle 1.10s loop=True speed=1
+        ## Assets/Enemy/Skeleton 1/Files/Skeleton React.ase params=
+          default=react
+          [react] clip=react 0.40s loop=True speed=1
+        ## Assets/Enemy/Skeleton 1/Files/Skeleton Walk.ase params=
+          default=walking
+          [walking] clip=walking 1.30s loop=True speed=1
+        ## Assets/Enemy/YellowNinja/Enemy_1.controller params=Attack:B,Hurt:T,Death:T
+          default=YellowNinjaWalk
+          [YellowNinjaWalk] clip=YellowNinjaWalk 0.83s loop=True speed=1
+             -> YellowNinjaAttack exit=False@0.70 dur=0.00 cond=AttackI0
+          [YellowNinjaAttack] clip=YellowNinjaAttack 1.67s loop=True speed=1
+             -> YellowNinjaWalk exit=False@0.85 dur=0.00 cond=AttackI0
+          [YellowNinjaHit] clip=YellowNinjaHit 0.33s loop=False speed=1
+             -> YellowNinjaWalk exit=True@1.00 dur=0.00 cond=
+             -> YellowNinjaAttack exit=True@1.00 dur=0.00 cond=AttackI0
+          [YellowNinjaDeath] clip=YellowNinjaDeath 1.25s loop=False speed=1
+          ANY -> YellowNinjaHit cond=HurtI0 exit=False
+          ANY -> YellowNinjaDeath cond=DeathI0 exit=True
+        ## Assets/Players/Enemy_1.controller params=Attack:B,Hurt:T,Death:B
+          default=Enemy1_Walk
+          [Enemy1_Walk] clip=none speed=1
+             -> Enemy1_Attack exit=False@0.70 dur=0.00 cond=AttackI0
+             -> Enemy1_Death exit=False@0.70 dur=0.00 cond=DeathI0
+          [Enemy1_Attack] clip=none speed=1
+             -> Enemy1_Walk exit=False@0.85 dur=0.00 cond=AttackI0
+             -> Enemy1_Death exit=False@0.85 dur=0.00 cond=DeathI0
+          [Enemy1_Hurt] clip=none speed=1
+             -> Enemy1_Walk exit=True@1.00 dur=0.00 cond=
+             -> Enemy1_Attack exit=True@1.00 dur=0.00 cond=AttackI0
+             -> Enemy1_Death exit=False@0.25 dur=0.00 cond=DeathI0
+          [Enemy1_Death] clip=none speed=1
+          ANY -> Enemy1_Hurt cond=HurtI0 exit=False
+        ## Assets/Players/SoulslikeKnight/SoulslikeKnight_SpriteSheets/Player.controller params=IsRunning:B,IsBlocking:B,IsHealing:B,IsDead:B,Attack:T,Roll:T,Jump:T,Hurt:T,Death:T,CombpStep:I
+          default=Idle
+          [Run] clip=Run 0.85s loop=True speed=1
+             -> Idle exit=False@0.71 dur=0.25 cond=IsRunningI0
+          [Roll] clip=Roll 0.85s loop=True speed=1
+             -> Idle exit=True@0.71 dur=0.25 cond=
+          [Attack] clip=Attack1 0.50s loop=True speed=1
+             -> Attack2 exit=True@0.50 dur=0.25 cond=CombpStepE1&AttackI0
+             -> Idle exit=True@0.50 dur=0.25 cond=
+          [Attack2] clip=Attack2 0.53s loop=True speed=1
+             -> Attack3 exit=True@0.53 dur=0.25 cond=AttackI0&CombpStepE2
+          [Attack3] clip=Attack3 0.83s loop=True speed=1
+             -> Idle exit=True@0.70 dur=0.25 cond=
+          [Jump] clip=Jump 1.02s loop=True speed=1
+             -> Idle exit=True@0.75 dur=0.25 cond=
+          [Block] clip=Block 0.85s loop=True speed=1
+             -> Idle exit=False@0.71 dur=0.25 cond=IsBlockingI0
+          [Death] clip=Death 1.02s loop=True speed=1
+          [Heal] clip=Heal 1.02s loop=True speed=1
+             -> Block exit=True@0.75 dur=0.25 cond=
+             -> Idle exit=True@0.75 dur=0.25 cond=IsHealingI0
+          [Hurt] clip=Hurt 0.85s loop=True speed=1
+             -> Idle exit=True@0.71 dur=0.25 cond=
+          [Idle] clip=Idle 0.85s loop=True speed=1
+             -> Run exit=False@0.71 dur=0.25 cond=IsRunningI0
+             -> Roll exit=False@0.71 dur=0.25 cond=RollI0
+             -> Jump exit=False@0.71 dur=0.25 cond=JumpI0
+             -> Attack exit=False@0.71 dur=0.25 cond=AttackI0
+             -> Heal exit=False@0.71 dur=0.25 cond=IsHealingI0
+             -> Block exit=False@0.71 dur=0.25 cond=IsBlockingI0
+             -> Hurt exit=False@0.71 dur=0.25 cond=HurtI0
+             -> Death exit=False@0.71 dur=0.25 cond=IsDeadI0
+        AUDIO: Assets/Music/Bonfires - dark fantasy music/WAV_Bonfires.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Cursemark.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Mistridden_Woods.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Necrons_Tower.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Nightfall.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Ruins_In_The_Deep.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Temple_Of_Illas.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Tyrants_Lament.wav, Assets/Music/Bonfires - dark fantasy music/WAV_Voices_From_The_Grove.wav, Packages/com.unity.ai.generators/Modules/Unity.AI.Sound/Sounds/FailedDownload.wav
+        MIXERS: 0
+diagnostics: []
+compileMs: 3793
+executeMs: 1109
+assemblyName: PipelineRunScript_AnimAudit_0bf360e28bc8490ab71e9290ea7ff31a

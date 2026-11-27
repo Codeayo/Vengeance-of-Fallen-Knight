@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd155475669816f4ea9b8c0cd08e3ed9, type: 3}
+  m_Name: AudioCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::AudioCatalog
+  scenes:
+  - scene: Main Menu
+    music: {fileID: 8300000, guid: 6d614153233094d87851eb7d15240639, type: 3}
+    ambience: amb_menu
+    ambientOneShots:
+    - raven
+    oneShotMinGap: 14
+    oneShotMaxGap: 30
+    footstep: step_dirt
+  - scene: Graveyard
+    music: {fileID: 8300000, guid: 0cdb9453705f24038bfa7be01384e20f, type: 3}
+    ambience: amb_graveyard
+    ambientOneShots:
+    - raven
+    - thunder
+    - ghost_whisper
+    - raven
+    oneShotMinGap: 12
+    oneShotMaxGap: 26
+    footstep: step_stone
+  - scene: Woodcamp
+    music: {fileID: 8300000, guid: dc4d742541d6240d9846d4be062063fb, type: 3}
+    ambience: amb_camp
+    ambientOneShots:
+    - bird
+    - raven
+    - bird
+    oneShotMinGap: 7
+    oneShotMaxGap: 16
+    footstep: step_dirt
+  - scene: Grove
+    music: {fileID: 8300000, guid: 6892ca60e92c6437586d73b496b187bd, type: 3}
+    ambience: amb_grove
+    ambientOneShots:
+    - ghost_whisper
+    - drip
+    - ghost_whisper
+    oneShotMinGap: 9
+    oneShotMaxGap: 20
+    footstep: step_dirt
+  - scene: Taiga
+    music: {fileID: 8300000, guid: 921af0c61420648d59d15314b3889f8b, type: 3}
+    ambience: amb_taiga
+    ambientOneShots:
+    - ice_crack
+    - raven
+    oneShotMinGap: 10
+    oneShotMaxGap: 22
+    footstep: step_snow
+  - scene: Castle
+    music: {fileID: 8300000, guid: 6485c79c4af5b48c2818ff5810b20231, type: 3}
+    ambience: amb_castle
+    ambientOneShots:
+    - chain
+    - door_creak
+    - drip
+    - chain
+    oneShotMinGap: 8
+    oneShotMaxGap: 18
+    footstep: step_stone
+  - scene: ThroneRoom
+    music: {fileID: 8300000, guid: f201760e56068401bbdb69ac2ed12b3d, type: 3}
+    ambience: amb_throne
+    ambientOneShots:
+    - chain
+    - ghost_whisper
+    oneShotMinGap: 14
+    oneShotMaxGap: 28
+    footstep: step_stone
+  - scene: Credits
+    music: {fileID: 8300000, guid: 6d614153233094d87851eb7d15240639, type: 3}
+    ambience: amb_menu
+    ambientOneShots: []
+    oneShotMinGap: 0
+    oneShotMaxGap: 0
+    footstep: step_dirt
+  bosses:
+  - boss: Lord Malvric, the Usurper
+    music: {fileID: 8300000, guid: 49fa1f57756ad41e5817bd34a272e487, type: 3}
+  - boss: Sir Dravek, Captain of the Black Guard
+    music: {fileID: 8300000, guid: 49fa1f57756ad41e5817bd34a272e487, type: 3}
+  defaultBossMusic: {fileID: 8300000, guid: 71ceade25bbb746c39c80863fac5ce2f, type: 3}
+  openingMusic: {fileID: 8300000, guid: 0cdb9453705f24038bfa7be01384e20f, type: 3}
+  epilogueMusic: {fileID: 8300000, guid: 6d614153233094d87851eb7d15240639, type: 3}
+  overrides: []

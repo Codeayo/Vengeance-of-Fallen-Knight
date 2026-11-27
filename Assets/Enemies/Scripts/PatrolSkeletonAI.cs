@@ -134,6 +134,11 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
     // ---------------- STATE: CHASE ----------------
     void PlayerDetected()
     {
+        if (!alerted)
+        {
+            alerted = true;
+            EnemyVoice.Of(gameObject)?.Alert();
+        }
         if (animator != null)
         {
             animator.SetBool("PlayerDetected", true);
@@ -171,20 +176,46 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
     System.Collections.IEnumerator AttackRoutine()
     {
         attacking = true;
+        // Varied attacks: quick thrust, sweep, and (for big skeletons) a heavy overhead slam.
+        int index = Random.Range(0, transform.localScale.y > 1.6f ? 3 : 2);
+        bool heavy = index == 2;
         if (animator != null)
+        {
+            animator.SetInteger("AttackIndex", index);
             animator.SetTrigger("Attack");
-        yield return new WaitForSeconds(attackWindup);
+        }
+        EnemyVoice.Of(gameObject)?.Swing(heavy);
+        yield return new WaitForSeconds(heavy ? attackWindup * 1.35f : attackWindup);
 
         // The hit only lands if the knight is still in reach when the blow falls (rolling away works).
         if (!isDead && player != null && Vector2.Distance(transform.position, player.position) <= attackRange * 1.15f)
         {
             Player playerCharacter = player.GetComponentInParent<Player>();
             if (playerCharacter != null)
-                playerCharacter.TakeDamage(attackDamage);
+            {
+                playerCharacter.TakeDamageFrom(heavy ? Mathf.RoundToInt(attackDamage * 1.4f) : attackDamage, transform.position);
+                EnemyVoice.Of(gameObject)?.Impact();
+                if (heavy) ScreenShake.Shake(0.25f);
+            }
         }
 
         yield return new WaitForSeconds(0.25f);
         attacking = false;
+    }
+
+    bool guarding;
+    bool alerted;
+
+    void Unguard()
+    {
+        guarding = false;
+        if (animator != null) animator.SetBool("Protect", false);
+    }
+
+    void LateUpdate()
+    {
+        if (animator != null && rb != null)
+            animator.SetFloat("Speed", isDead || attacking ? 0f : Mathf.Abs(rb.linearVelocity.x));
     }
 
     bool PlayerIsDead()
@@ -199,9 +230,27 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
         if (isDead) return;
         if (dmg <= 0) return;
 
+        // Elite and giant skeletons sometimes raise their shields: the blow glances off for a third.
+        if (!attacking && !guarding && transform.localScale.y > 1.3f && Random.value < 0.18f && animator != null)
+        {
+            guarding = true;
+            animator.SetBool("Protect", true);
+            Invoke(nameof(Unguard), 0.7f);
+        }
+
+        if (guarding)
+        {
+            dmg = Mathf.Max(1, dmg / 3);
+            MusicManager.Instance?.PlayAt("block", transform.position, 0.7f);
+        }
+        else
+        {
+            if (animator != null && !attacking)
+                animator.SetTrigger("Hurt");
+            EnemyVoice.Of(gameObject)?.Hurt();
+        }
+
         health -= dmg;
-        if (animator != null)
-            animator.SetTrigger("Hurt");
 
         if (health <= 0)
             Die();

@@ -94,6 +94,15 @@ public class Player : MonoBehaviour
     public int Defense => Inventory.DefenseBonus;
     public bool IsWarded => Time.time < wardUntil;
     float wardUntil;
+
+    /// <summary>Set by cinematics: the knight ignores input while true.</summary>
+    public static bool ControlLocked;
+    int comboStep;
+    float knockbackUntil;
+    bool wasGrounded = true;
+    float lowestAirVelocity;
+    float footstepTimer;
+    ParticleSystem dust;
     public bool IsDead => isDead;
     public bool IsRespawning => isRespawning;
 
@@ -136,7 +145,17 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        UpdateAirState();
         if (isDead || isRespawning) return;
+
+        if (ControlLocked)
+        {
+            if (rb != null && rb.bodyType == RigidbodyType2D.Dynamic && Time.time >= knockbackUntil)
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            if (anim != null) { anim.SetBool(RUN, false); anim.SetBool(BLOCK, false); }
+            isBlocking = false;
+            return;
+        }
 
         if (PauseMenu.IsPaused || InventoryUI.IsOpen || ReadPanel.IsOpen)
         {
@@ -258,7 +277,7 @@ public class Player : MonoBehaviour
     // ---------------- MOVEMENT -----------------
     void Move()
     {
-        if (rb == null || isRolling)
+        if (rb == null || isRolling || Time.time < knockbackUntil)
             return;
 
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
@@ -307,6 +326,8 @@ public class Player : MonoBehaviour
             if (anim != null)
                 anim.SetTrigger(JUMP);
             jumpsRemaining--;
+            MusicManager.Instance?.Play("jump", 0.45f);
+            if (grounded) Dust(6);
         }
     }
 
@@ -378,36 +399,136 @@ public class Player : MonoBehaviour
     {
         bool attackPressed = Input.GetKeyDown(KeyCode.J) || Input.GetMouseButtonDown(0) ||
                              (Pad != null && Pad.buttonWest.wasPressedThisFrame);
+        // Three-hit combo: quick follow-ups inside the combo window, the third blow is a heavy finisher.
+        float cooldown = comboStep == 2 ? attackCooldown : attackCooldown * 0.6f;
         if (attackPoint != null && attackPressed &&
-            Time.time > lastAttackTime + attackCooldown && !isRolling)
+            Time.time > lastAttackTime + cooldown && !isRolling)
         {
+            comboStep = Time.time - lastAttackTime < 0.85f ? (comboStep + 1) % 3 : 0;
             if (anim != null)
+            {
+                anim.SetInteger("CombpStep", comboStep);
                 anim.SetTrigger(ATTACK);
+            }
             lastAttackTime = Time.time;
-            StartCoroutine(DoDamage());
+            MusicManager.Instance?.Play(comboStep == 2 ? "swing_heavy" : "swing", 0.7f, 0.1f);
+            StartCoroutine(DoDamage(comboStep));
         }
     }
 
-    IEnumerator DoDamage()
-    {
-        yield return new WaitForSeconds(attackDelay);
+    IEnumerator DoDamage() { return DoDamage(0); }
 
-        if (attackPoint == null)
+    IEnumerator DoDamage(int step)
+    {
+        yield return new WaitForSeconds(step == 2 ? attackDelay + 0.1f : attackDelay);
+
+        if (attackPoint == null || isDead)
             yield break;
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(
-            attackPoint.position,
-            attackRange,
-            enemyLayer
-        );
+        float range = step == 2 ? attackRange * 1.3f : attackRange;
+        int damage = step == 2 ? Mathf.RoundToInt(AttackDamage * 1.6f) : AttackDamage;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, range, enemyLayer);
 
         var damagedTargets = new System.Collections.Generic.HashSet<Transform>();
+        bool landed = false;
         foreach (var h in hits)
         {
             Transform target = h.transform.root;
-            if (damagedTargets.Add(target))
-                h.SendMessageUpwards("TakeDamage", AttackDamage, SendMessageOptions.DontRequireReceiver);
+            if (!damagedTargets.Add(target))
+                continue;
+            h.SendMessageUpwards("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
+            landed = true;
+            bool bony = target.GetComponentInChildren<PatrolSkeletonAI>() != null || target.GetComponentInChildren<Enemy_behaviour>() != null;
+            bool armored = target.GetComponentInChildren<BossKnightAI>() != null;
+            MusicManager.Instance?.PlayAt(armored ? "clank" : bony ? "hit_bone" : "hit", h.bounds.center, 0.85f);
         }
+
+        if (landed)
+        {
+            ScreenShake.Shake(step == 2 ? 0.22f : 0.08f);
+            if (step == 2) StartCoroutine(HitStop(0.06f));
+        }
+    }
+
+    IEnumerator HitStop(float seconds)
+    {
+        if (Time.timeScale < 0.99f) yield break;
+        Time.timeScale = 0.05f;
+        yield return new WaitForSecondsRealtime(seconds);
+        if (!PauseMenu.IsPaused && !InventoryUI.IsOpen && !ReadPanel.IsOpen && !ShrineMenu.IsOpen)
+            Time.timeScale = 1f;
+    }
+
+    // ---------------- ANIMATION STATE, LANDING, FOOTSTEPS -----------------
+    void UpdateAirState()
+    {
+        if (anim == null || rb == null) return;
+        bool grounded = !isDead && IsGroundedQuiet();
+        anim.SetBool("IsGrounded", grounded);
+        anim.SetFloat("YVel", rb.linearVelocity.y);
+        if (!grounded) lowestAirVelocity = Mathf.Min(lowestAirVelocity, rb.linearVelocity.y);
+        if (grounded && !wasGrounded && lowestAirVelocity < -6f)
+        {
+            MusicManager.Instance?.Play("land", Mathf.Clamp01(-lowestAirVelocity / 22f) + 0.2f);
+            Dust(Mathf.Clamp((int)(-lowestAirVelocity), 4, 14));
+            if (lowestAirVelocity < -18f) ScreenShake.Shake(0.12f);
+        }
+        if (grounded) lowestAirVelocity = 0f;
+        wasGrounded = grounded;
+
+        bool running = grounded && !isRolling && Mathf.Abs(rb.linearVelocity.x) > 1f && !ControlLocked;
+        if (running)
+        {
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0f)
+            {
+                footstepTimer = 0.3f;
+                MusicManager.Instance?.Play(MusicManager.Instance.FootstepKey, 0.32f, 0.1f, 0.05f);
+            }
+        }
+        else footstepTimer = 0.05f;
+    }
+
+    bool IsGroundedQuiet()
+    {
+        Collider2D c = GetComponent<Collider2D>();
+        if (c == null || !c.enabled) return false;
+        Bounds b = c.bounds;
+        return Physics2D.OverlapBox(new Vector2(b.center.x, b.min.y - 0.06f), new Vector2(b.size.x * 0.85f, 0.12f), 0f, groundLayer);
+    }
+
+    void Dust(int count)
+    {
+        if (dust == null)
+        {
+            var assets = CinematicAssets.Instance;
+            var go = new GameObject("Dust");
+            go.transform.SetParent(transform, false);
+            dust = go.AddComponent<ParticleSystem>();
+            dust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            var r = go.GetComponent<ParticleSystemRenderer>();
+            if (assets != null) r.sharedMaterial = assets.particleMaterial;
+            r.sortingLayerName = "player"; r.sortingOrder = 5;
+            var main = dust.main;
+            main.playOnAwake = false; main.loop = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.3f, 0.6f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.8f, 2.4f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.25f, 0.55f);
+            main.startColor = new Color(0.75f, 0.7f, 0.65f, 0.55f);
+            main.gravityModifier = 0.2f;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            var em = dust.emission; em.rateOverTime = 0f;
+            var sh = dust.shape; sh.shapeType = ParticleSystemShapeType.Cone; sh.angle = 70f; sh.rotation = new Vector3(-90f, 0, 0); sh.radius = 0.4f;
+            var tsa = dust.textureSheetAnimation; tsa.enabled = true; tsa.mode = ParticleSystemAnimationMode.Sprites;
+            if (assets != null) tsa.SetSprite(0, assets.softGlow);
+            var col = dust.colorOverLifetime; col.enabled = true;
+            var g = new Gradient();
+            g.SetKeys(new[] { new GradientColorKey(Color.white, 0), new GradientColorKey(Color.white, 1) }, new[] { new GradientAlphaKey(1, 0), new GradientAlphaKey(0, 1) });
+            col.color = g;
+        }
+        Collider2D c = GetComponent<Collider2D>();
+        dust.transform.position = c != null ? new Vector3(c.bounds.center.x, c.bounds.min.y + 0.1f, 0f) : transform.position;
+        dust.Emit(count);
     }
 
     // ---------------- ROLL -----------------
@@ -426,6 +547,7 @@ public class Player : MonoBehaviour
 
         if (anim != null)
             anim.SetTrigger(ROLL);
+        MusicManager.Instance?.Play("roll", 0.5f);
 
         float direction = sr != null && sr.flipX ? -1f : 1f;
         rb.linearVelocity = new Vector2(direction * rollSpeed, rb.linearVelocity.y);
@@ -495,6 +617,20 @@ public class Player : MonoBehaviour
         TakeDamage(amount, false);
     }
 
+    /// <summary>Damage from an attacker: also knocks the knight back away from the blow.</summary>
+    public void TakeDamageFrom(int amount, Vector3 source)
+    {
+        int before = currentHealth;
+        TakeDamage(amount, false);
+        if (currentHealth < before && !isDead && rb != null && !isBlocking)
+        {
+            float dir = Mathf.Sign(transform.position.x - source.x);
+            if (dir == 0f) dir = 1f;
+            rb.linearVelocity = new Vector2(dir * 7f, 5f);
+            knockbackUntil = Time.time + 0.22f;
+        }
+    }
+
     public void TakeDamage(int amount, bool ignoreInvulnerability)
     {
         if (isDead || isRespawning || amount <= 0) return;
@@ -509,8 +645,18 @@ public class Player : MonoBehaviour
             : reduced;
         currentHealth = Mathf.Max(0, currentHealth - appliedDamage);
 
-        if (anim != null)
-            anim.SetTrigger(HURT);
+        if (isBlocking)
+        {
+            MusicManager.Instance?.Play("block", 0.8f);
+            ScreenShake.Shake(0.06f);
+        }
+        else
+        {
+            if (anim != null)
+                anim.SetTrigger(HURT);
+            MusicManager.Instance?.Play("player_hurt", 0.75f, 0.08f);
+            ScreenShake.Shake(0.14f);
+        }
 
         if (healthSlider != null)
             healthSlider.value = currentHealth;
@@ -579,6 +725,9 @@ public class Player : MonoBehaviour
         }
         invulnerableUntil = Time.time + 1f;
         isRespawning = false;
+        if (anim != null) anim.SetTrigger("Rise");
+        MusicManager.Instance?.Play("rise", 0.5f, 0.02f);
+        Dust(8);
 
         if (GameHUD.Instance != null)
             yield return GameHUD.Instance.FadeScreen(0f, 0.35f);
@@ -599,7 +748,10 @@ public class Player : MonoBehaviour
             anim.SetBool(IS_DEAD, false);
             anim.Rebind();
             anim.Update(0f);
+            anim.SetTrigger("Rise");
         }
+        MusicManager.Instance?.Play("rise", 0.8f, 0.02f);
+        Dust(12);
 
         if (sr != null)
             sr.color = baseColor;
@@ -623,6 +775,9 @@ public class Player : MonoBehaviour
     void Die()
     {
         isDead = true;
+        MusicManager.Instance?.Play("player_death", 0.9f, 0.02f);
+        ScreenShake.Shake(0.3f);
+        StartCoroutine(DeathSlowMotion());
         if (anim != null)
         {
             anim.SetBool(IS_DEAD, true);
@@ -646,6 +801,19 @@ public class Player : MonoBehaviour
 
         // The player object is kept (not destroyed) so it can rise again at the last checkpoint.
         this.enabled = false;
+    }
+
+    IEnumerator DeathSlowMotion()
+    {
+        Time.timeScale = 0.35f;
+        yield return new WaitForSecondsRealtime(0.9f);
+        if (!PauseMenu.IsPaused) Time.timeScale = 1f;
+    }
+
+    /// <summary>Cinematic resurrection: plays the rising animation (the death animation in reverse).</summary>
+    public void PlayRise()
+    {
+        if (anim != null) anim.SetTrigger("Rise");
     }
 
     // ---------------- GIZMOS -----------------

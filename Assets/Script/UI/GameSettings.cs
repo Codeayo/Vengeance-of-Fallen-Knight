@@ -9,6 +9,20 @@ public static class GameSettings
 {
     public const string MusicKey = "MusicVolume";
     public const string SfxKey = "SFXVolume";
+    public const string MasterKey = "MasterVolume";
+    public const string AmbientKey = "AmbientVolume";
+
+    public static float MasterVolume
+    {
+        get => PlayerPrefs.GetFloat(MasterKey, 1f);
+        set { PlayerPrefs.SetFloat(MasterKey, Mathf.Clamp01(value)); MusicManager.Instance?.ApplyVolumes(); AudioListener.volume = Mathf.Clamp01(value); }
+    }
+
+    public static float AmbientVolume
+    {
+        get => PlayerPrefs.GetFloat(AmbientKey, 0.6f);
+        set { PlayerPrefs.SetFloat(AmbientKey, Mathf.Clamp01(value)); MusicManager.Instance?.ApplyVolumes(); }
+    }
     private const string FullscreenKey = "Fullscreen";
     private const string ResolutionKey = "ResolutionIndex";
     private const string QualityKey = "QualityLevel";
@@ -129,6 +143,7 @@ public static class GameSettings
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void ApplyOnStartup()
     {
+        AudioListener.volume = MasterVolume;
         if (PlayerPrefs.HasKey(QualityKey))
             QualitySettings.SetQualityLevel(QualityLevel, true);
         QualitySettings.vSyncCount = VSync ? 1 : 0;
