@@ -38,19 +38,20 @@ public static class Level2Woodcamp
         K.Ledge(224, 232, 12.4f, st); // treasure ledge behind the locked gate
 
         // --- Backdrop
-        for (int i = 1; i <= 5; i++)
-        {
-            var bg = K.SpriteFile($"Assets/Art/Wood-Camp/Background/Background-{i}.png");
-            float follow = 0.95f - i * 0.12f;
-            K.Backdrop(bg, follow, 44f, 12f, i <= 2 ? "Background" : "backmid", i, new Color(0.72f, 0.66f, 0.6f));
-        }
+        // Five stacked layers (sky, clouds, far clouds, mountains, mesas), bottoms aligned, each with its own depth.
+        Color dusk = new Color(1f, 0.82f, 0.72f);
+        K.Backdrop(K.SpriteFile("Assets/Art/Wood-Camp/Background/Background-1.png"), 0.97f, 70f, 22f, "Background", 1, dusk);
+        float[] follow = { 0.9f, 0.82f, 0.7f, 0.55f };
+        float[] heights = { 22f, 20f, 17f, 14f };
+        for (int i = 2; i <= 5; i++)
+            K.Backdrop(K.SpriteFile($"Assets/Art/Wood-Camp/Background/Background-{i}.png"), follow[i - 2], heights[i - 2], -1.5f + heights[i - 2] * 0.5f, i <= 3 ? "Background" : "backmid", i, dusk);
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 34f);
+        K.Camera(8.5f, 34f, new Color(0.16f, 0.42f, 0.62f));
 
         // --- Story & structure
-        K.Banner(4f, "The Burned Camp", "Where Malvric's assassins wait for their pay");
+        K.Chapter("CHAPTER II", "The Burned Camp", "The road to the camp where Malvric's hired blades wait for their pay.");
         var note = K.SpriteAt("Assets/Art/Castle-Hall/Tiles/Props.png", "Props_1");
         K.Note(11f, "Charred Orders",
             "\"The Knight-Captain is dead and buried. Burn the camp's records and hold the forest road.\n\n" +
@@ -82,7 +83,7 @@ public static class Level2Woodcamp
         var master = K.Enemy(K.Kind.NinjaMaster, 285f, "Kage, Malvric's Blade", new Color(1f, 0.55f, 0.5f), 260, 16, 260, true,
             K.L("assassins_fang", 1f), K.L("blood_contract", 1f), K.L("heart_vessel", 1f), K.L("crimson_flask", 1f, 1, 2));
         K.BossArena(268f, master.GetComponent<YellowNinja>(), "Kage, Malvric's Blade", "\"You should have stayed buried, Captain.\"",
-            "Kage Is Slain", "The Blood Contract bears Malvric's seal");
+            "Kage Is Slain", "The Blood Contract bears Malvric's seal", "KAGE", "MALVRIC'S BLADE", "You should have stayed buried, Captain.");
 
         // --- Rewards & secrets
         K.Pickup("crimson_flask", 66f);
@@ -108,7 +109,17 @@ public static class Level2Woodcamp
             float x = -6f + i * 36f;
             K.Prop(T(i % 8), x, 1f, "Backnear", i, i % 2 == 0, 0.3f, new Color(0.8f, 0.78f, 0.75f));
         }
-        Campfire(37f); Campfire(156f); Campfire(279f);
+        Campfire(37f); Campfire(156f); Campfire(279f); Campfire(96f); Campfire(214f);
+
+        // The camp was burned recently: smoke still rises from the wreckage, palisades are charred.
+        foreach (float x in new[] { 22f, 60f, 128f, 175f, 252f, 290f }) K.Smoke(x, 0.6f, 1.4f);
+        Color charred = new Color(0.35f, 0.28f, 0.25f);
+        foreach (float x in new[] { 26f, 88f, 140f, 199f, 266f }) K.Prop(A(22), x, 1f, "Backtiles", 5, true, 0.1f, charred);
+        foreach (float x in new[] { 14f, 74f, 112f, 186f, 239f, 296f }) K.Prop(A(14), x, 0.8f, "Backtiles", 3, false, 0.15f);      // boulders
+        foreach (float x in new[] { 43f, 104f, 166f, 230f, 284f }) K.Prop(A(2), x, 0.75f, "Backtiles", 7, false, 0.1f, new Color(0.7f, 0.6f, 0.55f)); // scorched crates
+        foreach (float x in new[] { 57f, 133f, 205f, 271f }) K.Prop(A(8), x, 0.8f, "Backtiles", 7);                                    // barrels
+        foreach (float x in new[] { 34f, 120f, 248f }) K.Prop(A(0), x, 1.1f, "Backtiles", 2);                                           // signposts
+        foreach (float x in new[] { 9f, 67f, 145f, 222f, 277f }) K.Torch(x + 1.6f, 2.2f, 0.9f);
 
         K.Atmosphere(new Color(1f, 0.82f, 0.7f), 0.82f, new Color(0.75f, 0.65f, 0.6f), 0.08f,
             new K.VolumeLook("WoodcampPost", 0.33f, 0.7f, 8f, -12f, new Color(1f, 0.93f, 0.85f)),

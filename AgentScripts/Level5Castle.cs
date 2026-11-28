@@ -57,9 +57,9 @@ public static class Level5Castle
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 34f);
+        K.Camera(8.5f, 34f, new Color(0.05f, 0.04f, 0.07f));
 
-        K.Banner(3.8f, "The Fallen Castle", "The halls you once guarded");
+        K.Chapter("CHAPTER V", "The Fallen Castle", "The halls Aldric once guarded. Familiar stone, and everything in it ruined.");
         var note = P(9);
         K.Note(14f, "Steward's Ledger",
             "By order of King Malvric, the old guard's names are struck from the rolls.\n\n" +
@@ -88,7 +88,8 @@ public static class Level5Castle
             K.L("royal_guard_plate", 1f), K.L("verdant_shard", 1f, 2, 3), K.L("soul_shard", 1f, 2, 3), K.L("crimson_flask", 1f, 2, 2));
         var g1 = K.Enemy(K.Kind.EliteSkeleton, 258f, "Black Guard", black);
         K.BossArena(242f, captain.GetComponent<PatrolSkeletonAI>(), "Sir Dravek, Captain of the Black Guard",
-            "\"Captain? No. I am captain now.\"", "Dravek Falls", "The way to the throne lies open");
+            "\"Captain? No. I am captain now.\"", "Dravek Falls", "The way to the throne lies open",
+            "SIR DRAVEK", "CAPTAIN OF THE BLACK GUARD", "Captain? No. I am captain now.");
 
         // The vault: royal key from Dravek opens it on the way back, or via the climb if found earlier
         K.Gate(134f, "royal_key", "castle_vault", K.SpriteAt("Assets/Art/Graveyard/Tiles.png", "Tiles_234"));
@@ -105,6 +106,14 @@ public static class Level5Castle
         foreach (float x in new[] { 34f, 126f, 198f }) K.Prop(P(10), x, 1.1f, "Backtiles", 6);               // benches
         foreach (float x in new[] { 52f, 94f, 176f, 250f }) K.Prop(P(7), x, 0.8f, "Backtiles", 7);           // skulls
         foreach (float x in new[] { 28f, 146f, 236f }) K.Prop(C(0), x, 1.3f, "Backtiles", 3);                // statues
+
+        // Lived-in ruin: wall torches, books, bottles, sacks, fallen banners and chains.
+        for (float x = 12f; x < 285f; x += 21f) K.Torch(x, 3.6f, 1f);
+        foreach (float x in new[] { 18f, 62f, 104f, 165f, 208f, 262f }) K.Prop(P(13 + (int)x % 4), x, 1f, "Backtiles", 8);    // books
+        foreach (float x in new[] { 46f, 116f, 188f, 244f }) K.Prop(P(17 + (int)x % 4), x, 0.9f, "Backtiles", 8);             // bottles
+        foreach (float x in new[] { 70f, 152f, 228f }) K.Prop(P(11), x, 1f, "Backtiles", 7);                                    // sacks
+        foreach (float x in new[] { 40f, 134f, 220f }) K.Prop(C(13), x, 1f, "Backtiles", 2, false, 0.6f, new Color(0.6f, 0.45f, 0.55f)); // fallen banners
+        foreach (float x in new[] { 98f, 180f, 275f }) K.Sprite(K.Decor, "Chain", P(2), new Vector3(x, K.FloorY(x) + 6.5f, 0), 1.2f, "Backtiles", 3, new Color(0.7f, 0.7f, 0.75f));
 
         K.Atmosphere(new Color(0.8f, 0.72f, 0.95f), 0.7f, new Color(0.6f, 0.5f, 0.75f), 0.08f,
             new K.VolumeLook("CastlePost", 0.42f, 0.8f, 14f, -10f, new Color(0.95f, 0.9f, 1f)),

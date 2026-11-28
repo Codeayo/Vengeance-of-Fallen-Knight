@@ -55,6 +55,7 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
     {
         if (dead || player == null)
             return;
+        if (Cinematic.IsPlaying) { Idle(); return; }
 
         float dx = player.position.x - transform.position.x;
         float dist = Mathf.Abs(dx);
@@ -274,6 +275,11 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
     {
         dead = true;
         StopAllCoroutines();
+        if (Cinematic.Instance != null && !Cinematic.IsPlaying)
+        {
+            var sub = typeof(Cinematic).GetField("subtitleGroup", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (sub.GetValue(Cinematic.Instance) is CanvasGroup g) g.alpha = 0f;
+        }
         rb.linearVelocity = Vector2.zero;
         anim.SetBool("IsDead", true);
         anim.SetTrigger("Death");

@@ -66,6 +66,11 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
     void Update()
     {
         if (isDead) return;
+        if (Cinematic.IsPlaying)
+        {
+            if (rb != null) rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return;
+        }
         if (player == null || PlayerIsDead())
         {
             Patrol();
@@ -270,6 +275,8 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
 
         foreach (Collider2D c in GetComponentsInChildren<Collider2D>())
             c.enabled = false;
+        // Keep the corpse on the ground while the death animation plays.
+        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.bodyType = RigidbodyType2D.Kinematic; }
 
         Destroy(gameObject, 3f);
     }

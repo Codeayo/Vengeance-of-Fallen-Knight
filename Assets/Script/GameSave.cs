@@ -145,9 +145,20 @@ public static class GameSave
         PendingCheckpoint = PlayerPrefs.GetString(CheckpointKey, "");
     }
 
+    /// <summary>True once per New Game: the opening resurrection cinematic plays, then it is cleared.</summary>
+    public static bool IntroPending { get; set; }
+
+    public static bool ConsumeIntro()
+    {
+        bool v = IntroPending;
+        IntroPending = false;
+        return v;
+    }
+
     /// <summary>Fresh run (New Game).</summary>
     public static void NewRun()
     {
+        IntroPending = true;
         ClearProgress();
         Inventory.ResetToNew();
         PlayerProgress.ResetToNew();
@@ -166,6 +177,7 @@ public static class GameSave
         chapter = Mathf.Clamp(chapter, 0, Levels.Length - 1);
         if (chapter == 0)
             return;
+        IntroPending = false;
         PlayerProgress.AddXp(0);
         for (int i = 0; i < chapter * 2; i++)
             PlayerProgress.AddXp(PlayerProgress.XpToNext);

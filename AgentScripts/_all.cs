@@ -673,21 +673,24 @@ public static class BuildHud
         var pauseRoot = UIKit.Stretch("Pause", ct);
         var pauseGroup = pauseRoot.gameObject.AddComponent<CanvasGroup>();
         UIKit.Img(pauseRoot, UIKit.Gen("WhitePixel"), new Color(0.01f, 0.01f, 0.03f, 0.72f), true);
-        var pp = UIKit.Panel("Panel", pauseRoot, new Vector2(820, 540), "Paused", out var _);
+        var pp = UIKit.Panel("Panel", pauseRoot, new Vector2(820, 640), "Paused", out var _);
         var resume = UIKit.MenuButton("Resume", pp, "Resume", new Vector2(130, -130), new Vector2(560, 60), 36);
-        var mLabel = UIKit.Text(UIKit.Rect("Music Label", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(150, -220), new Vector2(240, 50)),
-            "Music", 28, UIKit.Bone, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold | FontStyles.UpperCase, 4f);
-        var mSlider = UIKit.MakeSlider("Music Slider", pp, new Vector2(370, -220), new Vector2(260, 46), mLabel);
-        var mVal = UIKit.Text(UIKit.Rect("Music Value", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(650, -220), new Vector2(120, 50)),
-            "35%", 26, UIKit.Gold, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold);
-        var sLabel = UIKit.Text(UIKit.Rect("Effects Label", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(150, -290), new Vector2(240, 50)),
-            "Effects", 28, UIKit.Bone, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold | FontStyles.UpperCase, 4f);
-        var sSlider = UIKit.MakeSlider("Effects Slider", pp, new Vector2(370, -290), new Vector2(260, 46), sLabel);
-        var sVal = UIKit.Text(UIKit.Rect("Effects Value", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(650, -290), new Vector2(120, 50)),
-            "55%", 26, UIKit.Gold, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold);
-        var pMenu = UIKit.MenuButton("Main Menu", pp, "Main Menu", new Vector2(130, -380), new Vector2(560, 60), 36);
-        var pQuit = UIKit.MenuButton("Quit", pp, "Quit Game", new Vector2(130, -450), new Vector2(560, 60), 36);
-        UIKit.SetVerticalNav(new Selectable[] { resume, mSlider, sSlider, pMenu, pQuit });
+        (Slider, TMP_Text) Row(string name, float y)
+        {
+            var label = UIKit.Text(UIKit.Rect(name + " Label", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(150, y), new Vector2(240, 50)),
+                name, 26, UIKit.Bone, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold | FontStyles.UpperCase, 4f);
+            var slider = UIKit.MakeSlider(name + " Slider", pp, new Vector2(370, y), new Vector2(260, 44), label);
+            var val = UIKit.Text(UIKit.Rect(name + " Value", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(650, y), new Vector2(120, 50)),
+                "50%", 24, UIKit.Gold, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold);
+            return (slider, val);
+        }
+        var (masterS, masterV) = Row("Master", -205);
+        var (mSlider, mVal) = Row("Music", -263);
+        var (sSlider, sVal) = Row("Effects", -321);
+        var (aSlider, aVal) = Row("Ambience", -379);
+        var pMenu = UIKit.MenuButton("Main Menu", pp, "Main Menu", new Vector2(130, -465), new Vector2(560, 60), 36);
+        var pQuit = UIKit.MenuButton("Quit", pp, "Quit Game", new Vector2(130, -535), new Vector2(560, 60), 36);
+        UIKit.SetVerticalNav(new Selectable[] { resume, masterS, mSlider, sSlider, aSlider, pMenu, pQuit });
         var pause = canvas.gameObject.AddComponent<PauseMenu>();
         var pso = new SerializedObject(pause);
         pso.FindProperty("panel").objectReferenceValue = pauseGroup;
@@ -696,6 +699,10 @@ public static class BuildHud
         pso.FindProperty("quitButton").objectReferenceValue = pQuit;
         pso.FindProperty("musicSlider").objectReferenceValue = mSlider;
         pso.FindProperty("sfxSlider").objectReferenceValue = sSlider;
+        pso.FindProperty("masterSlider").objectReferenceValue = masterS;
+        pso.FindProperty("ambientSlider").objectReferenceValue = aSlider;
+        pso.FindProperty("masterValue").objectReferenceValue = masterV;
+        pso.FindProperty("ambientValue").objectReferenceValue = aVal;
         pso.FindProperty("musicValue").objectReferenceValue = mVal;
         pso.FindProperty("sfxValue").objectReferenceValue = sVal;
         pso.ApplyModifiedPropertiesWithoutUndo();
@@ -781,6 +788,7 @@ public static class BuildHud
 
         Assign(hud, ("xpFill", xpFill), ("levelText", lvl), ("feedRoot", feed), ("feedTemplate", row.gameObject), ("promptGroup", promptGroup), ("promptText", promptText));
 
+        BuildCinematic(canvas);
         BuildReadPanel(canvas);
         BuildShrineMenu(canvas);
         BuildInventory(canvas);
@@ -788,6 +796,48 @@ public static class BuildHud
         ct.Find("Screen Fade").SetAsLastSibling();
         ct.Find("Game Over").SetAsLastSibling();
         ct.Find("Pause").SetAsLastSibling();
+        ct.Find("Cinematic").SetAsLastSibling();
+    }
+
+    static void BuildCinematic(Canvas canvas)
+    {
+        var root = UIKit.Stretch("Cinematic", canvas.transform);
+        var black = UIKit.Stretch("Black", root);
+        var blackGroup = black.gameObject.AddComponent<CanvasGroup>();
+        UIKit.Img(black, UIKit.Gen("WhitePixel"), new Color(0.01f, 0.01f, 0.02f, 1f));
+        var top = UIKit.Rect("Letterbox Top", root, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), Vector2.zero, new Vector2(0, 0));
+        UIKit.Img(top, UIKit.Gen("WhitePixel"), Color.black);
+        var bottom = UIKit.Rect("Letterbox Bottom", root, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0), Vector2.zero, new Vector2(0, 0));
+        UIKit.Img(bottom, UIKit.Gen("WhitePixel"), Color.black);
+
+        var title = UIKit.Rect("Title Card", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 60), new Vector2(1700, 300));
+        var titleGroup = title.gameObject.AddComponent<CanvasGroup>();
+        var main = UIKit.Text(UIKit.Rect("Main", title, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 0), new Vector2(0, -10), new Vector2(0, 150)),
+            "VENGEANCE OF THE FALLEN KNIGHT", 92, Color.white, TextAlignmentOptions.Bottom, UIKit.TitleMat, FontStyles.Bold, 14f);
+        main.enableVertexGradient = true;
+        main.colorGradient = new VertexGradient(new Color(1f, 0.93f, 0.72f), new Color(1f, 0.93f, 0.72f), new Color(0.86f, 0.5f, 0.18f), new Color(0.86f, 0.5f, 0.18f));
+        main.textWrappingMode = TextWrappingModes.Normal;
+        var line = UIKit.Rect("Rule", title, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -26), new Vector2(820, 5));
+        UIKit.Img(line, UIKit.Gen("HBand"), new Color(1f, 0.72f, 0.35f, 0.9f));
+        var sub = UIKit.Text(UIKit.Rect("Sub", title, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 1), new Vector2(0, -44), new Vector2(0, 110)),
+            "", 34, UIKit.Bone, TextAlignmentOptions.Top, UIKit.BodyMat, FontStyles.Italic, 3f);
+
+        var subt = UIKit.Rect("Subtitles", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 140), new Vector2(1500, 190));
+        var subtGroup = subt.gameObject.AddComponent<CanvasGroup>();
+        UIKit.Img(UIKit.Stretch("Band", subt), UIKit.Gen("HBand"), new Color(0, 0, 0, 0.7f));
+        var speaker = UIKit.Text(UIKit.Rect("Speaker", subt, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), new Vector2(0, -16), new Vector2(0, 44)),
+            "The Watcher", 30, new Color(0.65f, 0.9f, 1f), TextAlignmentOptions.Top, UIKit.BodyMat, FontStyles.Bold | FontStyles.SmallCaps, 6f);
+        var text = UIKit.Text(UIKit.Rect("Line", subt, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), new Vector2(0, -62), new Vector2(-160, 120)),
+            "", 32, UIKit.Bone, TextAlignmentOptions.Top, UIKit.BodyMat, FontStyles.Italic);
+
+        var skip = UIKit.Rect("Skip Hint", root, new Vector2(1, 0), new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 30), new Vector2(600, 40));
+        var skipGroup = skip.gameObject.AddComponent<CanvasGroup>();
+        UIKit.Text(skip, "Hold <color=#E8C27A>Esc</color> / <color=#E8C27A>Enter</color> / <color=#E8C27A>Start</color> to skip", 22, UIKit.Ash, TextAlignmentOptions.BottomRight, UIKit.BodyMat);
+
+        foreach (var g in new[] { blackGroup, titleGroup, subtGroup, skipGroup }) { g.alpha = 0f; g.blocksRaycasts = false; g.interactable = false; }
+        var c = canvas.gameObject.AddComponent<Cinematic>();
+        Assign(c, ("topBar", top), ("bottomBar", bottom), ("titleGroup", titleGroup), ("titleMain", main), ("titleSub", sub),
+            ("subtitleGroup", subtGroup), ("speakerText", speaker), ("lineText", text), ("black", blackGroup), ("skipHint", skipGroup));
     }
 
     static CanvasGroup Overlay(Transform parent, string name)
@@ -1175,7 +1225,7 @@ public static class LevelKit
     }
 
     // ------------------------------------------------------------------ camera, background, light
-    public static void Camera(float lens = 8.5f, float topY = 30f)
+    public static void Camera(float lens = 8.5f, float topY = 30f, Color? sky = null)
     {
         var cm = Object.FindFirstObjectByType<CinemachineCamera>();
         var lensSettings = cm.Lens;
@@ -1218,7 +1268,7 @@ public static class LevelKit
         var cam = UnityEngine.Camera.main;
         cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
         cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
+        cam.backgroundColor = sky ?? new Color(0.04f, 0.04f, 0.07f);
     }
 
     /// <summary>Camera-following background layer tiled across the level.</summary>
@@ -1488,7 +1538,8 @@ public static class LevelKit
         return exit;
     }
 
-    public static void BossArena(float x, MonoBehaviour boss, string name, string arrival, string defeatTitle, string defeatSub)
+    public static void BossArena(float x, MonoBehaviour boss, string name, string arrival, string defeatTitle, string defeatSub,
+        string cardName = "", string cardTitle = "", string dialogue = "")
     {
         var go = Child(Content, "Boss Trigger: " + name, new Vector3(x, SurfaceY(x) + 4f, 0)).gameObject;
         go.layer = LayerMask.NameToLayer("Ignore Raycast");
@@ -1500,7 +1551,77 @@ public static class LevelKit
         so.FindProperty("arrivalMessage").stringValue = arrival;
         so.FindProperty("defeatTitle").stringValue = defeatTitle;
         so.FindProperty("defeatSubtitle").stringValue = defeatSub;
+        so.FindProperty("cardName").stringValue = cardName;
+        so.FindProperty("cardTitle").stringValue = cardTitle;
+        so.FindProperty("dialogue").stringValue = dialogue;
         so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    /// <summary>Chapter card and camera sweep when the level starts at its beginning.</summary>
+    public static void Chapter(string label, string title, string description, params string[] ghostLines)
+    {
+        var p = GameObject.FindGameObjectWithTag("Player");
+        var go = Child(Content, "Chapter Intro", p.transform.position).gameObject;
+        go.AddComponent<ChapterIntro>().Configure(label, title, description, ghostLines);
+    }
+
+    /// <summary>Wall torch / brazier: flickering flame, embers and warm light.</summary>
+    public static void Torch(float x, float yAboveGround, float scale = 1f)
+    {
+        float gy = FloorY(x);
+        var root = Child(Decor, "Torch", new Vector3(x, gy + yAboveGround, 0));
+        Sprite(root, "Sconce", UIKit.Gen("Diamond"), root.position + Vector3.down * 0.25f * scale, 0.5f * scale, "Backtiles", 20, new Color(0.3f, 0.25f, 0.22f)).transform.localScale = new Vector3(0.45f, 0.3f, 1) * scale;
+        Sprite(root, "Halo", UIKit.Gen("SoftCircle"), root.position, 2.2f * scale, "Backtiles", 19, new Color(1f, 0.55f, 0.2f, 0.45f));
+        var ps = UIKit.Particles("Flame", root, root.position, UIKit.Gen("SoftCircle"), "Backtiles", 21);
+        var main = ps.main;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.7f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.18f * scale, 0.42f * scale);
+        main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.45f, 0.1f, 0.95f), new Color(1f, 0.85f, 0.35f, 0.95f));
+        var em = ps.emission; em.rateOverTime = 24f;
+        var sh = ps.shape; sh.shapeType = ParticleSystemShapeType.Box; sh.scale = new Vector3(0.2f * scale, 0.05f, 0.1f);
+        var vel = ps.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.World;
+        vel.x = new ParticleSystem.MinMaxCurve(-0.08f, 0.08f); vel.y = new ParticleSystem.MinMaxCurve(0.9f, 1.6f); vel.z = new ParticleSystem.MinMaxCurve(0f, 0f);
+        var sz = ps.sizeOverLifetime; sz.enabled = true; sz.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0, 1, 1, 0.1f));
+        var l = UIKit.Light("Torch Light", root, Light2D.LightType.Point, root.position + Vector3.up * 0.3f, new Color(1f, 0.6f, 0.3f), 1.1f, 5.5f * scale, 0.4f);
+        l.gameObject.AddComponent<LightFlicker>();
+    }
+
+    /// <summary>A column of rising smoke (burned camp, braziers).</summary>
+    public static void Smoke(float x, float yAboveGround, float width = 1.2f)
+    {
+        float gy = FloorY(x);
+        var ps = UIKit.Particles("Smoke", Fx, new Vector3(x, gy + yAboveGround, 0), UIKit.Gen("Mist"), "Backtiles", 15);
+        var main = ps.main;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 6f);
+        main.startSize = new ParticleSystem.MinMaxCurve(1.2f, 2.4f);
+        main.startColor = new ParticleSystem.MinMaxGradient(new Color(0.25f, 0.22f, 0.22f, 0.35f), new Color(0.4f, 0.36f, 0.34f, 0.25f));
+        main.startRotation = new ParticleSystem.MinMaxCurve(-1f, 1f);
+        var em = ps.emission; em.rateOverTime = 3.5f;
+        var sh = ps.shape; sh.shapeType = ParticleSystemShapeType.Box; sh.scale = new Vector3(width, 0.2f, 0.1f);
+        var vel = ps.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.World;
+        vel.x = new ParticleSystem.MinMaxCurve(0.2f, 0.6f); vel.y = new ParticleSystem.MinMaxCurve(0.8f, 1.4f); vel.z = new ParticleSystem.MinMaxCurve(0f, 0f);
+        var sz = ps.sizeOverLifetime; sz.enabled = true; sz.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0, 0.6f, 1, 2.2f));
+        var col = ps.colorOverLifetime; col.enabled = true;
+        var g = new Gradient();
+        g.SetKeys(new[] { new GradientColorKey(Color.white, 0), new GradientColorKey(Color.white, 1) }, new[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, 0.2f), new GradientAlphaKey(0, 1) });
+        col.color = g;
+    }
+
+    /// <summary>A layer of distant silhouettes (sprites tinted toward the sky colour) following the camera.</summary>
+    public static void Skyline(Sprite[] sprites, float spacing, float y, float scale, float follow, string layer, int order, Color tint)
+    {
+        var root = Child(Decor, "Skyline " + order);
+        root.position = new Vector3(MinX, 0, 0);
+        int i = 0;
+        for (float x = MinX - 20f; x < MaxX * (1f - follow) + MinX + 60f; x += spacing, i++)
+        {
+            var sp = sprites[i % sprites.Length];
+            var sr = Sprite(root, "Silhouette", sp, new Vector3(x + (i % 3) * spacing * 0.2f, y, 0), scale * (0.85f + (i % 4) * 0.08f), layer, order, tint);
+            sr.flipX = i % 2 == 1;
+        }
+        var pf = root.gameObject.AddComponent<ParallaxFollow>();
+        SetF(pf, "followX", follow);
+        SetF(pf, "followY", Mathf.Clamp01(follow + 0.05f));
     }
 
     // ------------------------------------------------------------------ enemies
@@ -2515,9 +2636,34 @@ public static class Level1Extras
         K.Note(428f, "Road Sign",
             "East: the woodcutters' camp, burned. Malvric's hired blades sleep there now.", null, 1f);
 
+        // Cinematics: the resurrection on a New Game, then the chapter card.
+        var grave = GameObject.FindGameObjectWithTag("Player").transform.position;
+        var opening = K.Child(K.Content, "Opening Cinematic", grave).gameObject.AddComponent<OpeningCinematic>();
+        var burst = UIKit.Particles("Grave Dirt", opening.transform, grave + Vector3.down * 1.5f, UIKit.Gen("SoftCircle"), "Grill", 12);
+        var bm = burst.main; bm.loop = false; bm.playOnAwake = false; bm.prewarm = false; bm.duration = 2.4f;
+        bm.startLifetime = new ParticleSystem.MinMaxCurve(0.6f, 1.4f); bm.startSpeed = new ParticleSystem.MinMaxCurve(2f, 6f);
+        bm.startSize = new ParticleSystem.MinMaxCurve(0.12f, 0.35f); bm.gravityModifier = 1.2f;
+        bm.startColor = new ParticleSystem.MinMaxGradient(new Color(0.35f, 0.27f, 0.2f), new Color(0.55f, 0.45f, 0.35f));
+        var be = burst.emission; be.rateOverTime = 45f;
+        var bs = burst.shape; bs.shapeType = ParticleSystemShapeType.Cone; bs.angle = 35f; bs.rotation = new Vector3(-90f, 0, 0); bs.radius = 1f;
+        var gl = UIKit.Light("Grave Light", opening.transform, UnityEngine.Rendering.Universal.Light2D.LightType.Point, grave + Vector3.up * 1f, new Color(0.6f, 0.85f, 1f), 0f, 6f, 0.5f);
+        K.Set(opening, "dirtBurst", burst);
+        K.Set(opening, "graveLight", gl);
+        // Aldric's grave: a weathered headstone over a mound of disturbed earth.
+        var headstone = K.Prop(stone, grave.x - 1.6f, 3.2f, "Backtiles", 8, false, 0.2f, new Color(0.62f, 0.64f, 0.72f));
+        var mound = K.Prop(K.SpriteAt("Assets/Art/Wood-Camp/Tiles/Assets.png", "Assets_9"), grave.x + 0.6f, 1.1f, "Backtiles", 9, false, 0.25f, new Color(0.45f, 0.38f, 0.34f));
+        K.Chapter("CHAPTER I", "The Forsaken Graveyard", "Where the knight was buried, and where he will not stay.");
+        var enc = Object.FindFirstObjectByType<BossEncounter>();
+        if (enc != null) enc.ConfigureIntro("THE GRAVEWARDEN", "KEEPER OF THE CRYPTS", "");
+
+        // More of the haunted graveyard: candle lights at graves, distant ravens' perches, mist.
+        foreach (float x in new[] { 9f, 57f, 140f, 205f, 263f, 330f, 380f, 420f }) K.Torch(x + 1.5f, 0.6f, 0.6f);
+        foreach (float x in new[] { 36f, 98f, 172f, 240f, 312f, 365f, 401f })
+            K.Prop(stone, x, 1.6f, "Backtiles", 9, x % 2 == 0, 0.15f, new Color(0.55f, 0.58f, 0.66f));
+
         K.Pickup("crimson_flask", 64f);
         K.Pickup("boneplate_cuirass", 186f, 1.4f, 1, "grave_boneplate");
-        K.Pickup("ring_of_the_fallen", 29f, 7.0f, 1, "grave_ring");   // atop the ruined arch
+        K.Pickup("ring_of_the_fallen", 27f, 3.0f, 1, "grave_ring");   // beneath the ruined arch, a jump up
         K.Pickup("soul_shard", 255f, 1.2f, 1, "grave_shard_1");
         K.Pickup("verdant_shard", 320f, 1.2f, 1, "grave_shard_2");
         K.Pickup("heart_vessel", 300f, 1.4f, 1, "grave_heart");
@@ -2562,19 +2708,20 @@ public static class Level2Woodcamp
         K.Ledge(224, 232, 12.4f, st); // treasure ledge behind the locked gate
 
         // --- Backdrop
-        for (int i = 1; i <= 5; i++)
-        {
-            var bg = K.SpriteFile($"Assets/Art/Wood-Camp/Background/Background-{i}.png");
-            float follow = 0.95f - i * 0.12f;
-            K.Backdrop(bg, follow, 44f, 12f, i <= 2 ? "Background" : "backmid", i, new Color(0.72f, 0.66f, 0.6f));
-        }
+        // Five stacked layers (sky, clouds, far clouds, mountains, mesas), bottoms aligned, each with its own depth.
+        Color dusk = new Color(1f, 0.82f, 0.72f);
+        K.Backdrop(K.SpriteFile("Assets/Art/Wood-Camp/Background/Background-1.png"), 0.97f, 70f, 22f, "Background", 1, dusk);
+        float[] follow = { 0.9f, 0.82f, 0.7f, 0.55f };
+        float[] heights = { 22f, 20f, 17f, 14f };
+        for (int i = 2; i <= 5; i++)
+            K.Backdrop(K.SpriteFile($"Assets/Art/Wood-Camp/Background/Background-{i}.png"), follow[i - 2], heights[i - 2], -1.5f + heights[i - 2] * 0.5f, i <= 3 ? "Background" : "backmid", i, dusk);
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 34f);
+        K.Camera(8.5f, 34f, new Color(0.16f, 0.42f, 0.62f));
 
         // --- Story & structure
-        K.Banner(4f, "The Burned Camp", "Where Malvric's assassins wait for their pay");
+        K.Chapter("CHAPTER II", "The Burned Camp", "The road to the camp where Malvric's hired blades wait for their pay.");
         var note = K.SpriteAt("Assets/Art/Castle-Hall/Tiles/Props.png", "Props_1");
         K.Note(11f, "Charred Orders",
             "\"The Knight-Captain is dead and buried. Burn the camp's records and hold the forest road.\n\n" +
@@ -2606,7 +2753,7 @@ public static class Level2Woodcamp
         var master = K.Enemy(K.Kind.NinjaMaster, 285f, "Kage, Malvric's Blade", new Color(1f, 0.55f, 0.5f), 260, 16, 260, true,
             K.L("assassins_fang", 1f), K.L("blood_contract", 1f), K.L("heart_vessel", 1f), K.L("crimson_flask", 1f, 1, 2));
         K.BossArena(268f, master.GetComponent<YellowNinja>(), "Kage, Malvric's Blade", "\"You should have stayed buried, Captain.\"",
-            "Kage Is Slain", "The Blood Contract bears Malvric's seal");
+            "Kage Is Slain", "The Blood Contract bears Malvric's seal", "KAGE", "MALVRIC'S BLADE", "You should have stayed buried, Captain.");
 
         // --- Rewards & secrets
         K.Pickup("crimson_flask", 66f);
@@ -2632,7 +2779,17 @@ public static class Level2Woodcamp
             float x = -6f + i * 36f;
             K.Prop(T(i % 8), x, 1f, "Backnear", i, i % 2 == 0, 0.3f, new Color(0.8f, 0.78f, 0.75f));
         }
-        Campfire(37f); Campfire(156f); Campfire(279f);
+        Campfire(37f); Campfire(156f); Campfire(279f); Campfire(96f); Campfire(214f);
+
+        // The camp was burned recently: smoke still rises from the wreckage, palisades are charred.
+        foreach (float x in new[] { 22f, 60f, 128f, 175f, 252f, 290f }) K.Smoke(x, 0.6f, 1.4f);
+        Color charred = new Color(0.35f, 0.28f, 0.25f);
+        foreach (float x in new[] { 26f, 88f, 140f, 199f, 266f }) K.Prop(A(22), x, 1f, "Backtiles", 5, true, 0.1f, charred);
+        foreach (float x in new[] { 14f, 74f, 112f, 186f, 239f, 296f }) K.Prop(A(14), x, 0.8f, "Backtiles", 3, false, 0.15f);      // boulders
+        foreach (float x in new[] { 43f, 104f, 166f, 230f, 284f }) K.Prop(A(2), x, 0.75f, "Backtiles", 7, false, 0.1f, new Color(0.7f, 0.6f, 0.55f)); // scorched crates
+        foreach (float x in new[] { 57f, 133f, 205f, 271f }) K.Prop(A(8), x, 0.8f, "Backtiles", 7);                                    // barrels
+        foreach (float x in new[] { 34f, 120f, 248f }) K.Prop(A(0), x, 1.1f, "Backtiles", 2);                                           // signposts
+        foreach (float x in new[] { 9f, 67f, 145f, 222f, 277f }) K.Torch(x + 1.6f, 2.2f, 0.9f);
 
         K.Atmosphere(new Color(1f, 0.82f, 0.7f), 0.82f, new Color(0.75f, 0.65f, 0.6f), 0.08f,
             new K.VolumeLook("WoodcampPost", 0.33f, 0.7f, 8f, -12f, new Color(1f, 0.93f, 0.85f)),
@@ -2697,15 +2854,16 @@ public static class Level3Grove
         K.Ground(250, 296, 2f, st);
         K.FinishTerrain(st);
 
-        for (int i = 0; i < 3; i++)
-            K.Backdrop(K.SpriteFile($"Assets/Art/Mushroom_Grove/Assets/Background/Background_{i}.png"), 0.9f - i * 0.18f, 40f, 9f,
-                i == 0 ? "Background" : "backmid", i, new Color(0.6f, 0.72f, 0.66f));
+        Color grove = new Color(0.78f, 0.92f, 0.82f);
+        K.Backdrop(K.SpriteFile("Assets/Art/Mushroom_Grove/Assets/Background/Background_0.png"), 0.95f, 52f, 13f, "Background", 0, grove);
+        K.Backdrop(K.SpriteFile("Assets/Art/Mushroom_Grove/Assets/Background/Background_1.png"), 0.75f, 32f, 9f, "backmid", 1, grove);
+        K.Backdrop(K.SpriteFile("Assets/Art/Mushroom_Grove/Assets/Background/Background_2.png"), 0.55f, 30f, 8f, "backmid", 2, grove);
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 30f);
+        K.Camera(8.5f, 30f, new Color(0.03f, 0.09f, 0.06f));
 
-        K.Banner(3.8f, "The Rotting Grove", "Malvric's sorcery took root here");
+        K.Chapter("CHAPTER III", "The Rotting Grove", "The hermits' wood, corrupted by Malvric's sorcery. The dead do not stay buried here.");
         var note = K.SpriteAt("Assets/Art/Castle-Hall/Tiles/Props.png", "Props_9");
         K.Note(14f, "Hermit's Warning",
             "Turn back, traveller. Since the usurper's mages came, the dead do not stay in the earth here.\n\n" +
@@ -2735,7 +2893,7 @@ public static class Level3Grove
             K.L("sporebane", 1f), K.L("hermits_map", 1f), K.L("verdant_tonic", 1f, 2, 2), K.L("verdant_shard", 1f, 2, 3));
         var add1 = K.Enemy(K.Kind.Skeleton, 266f, "Bog Risen", rot, 0, 0, 0, false);
         K.BossArena(258f, colossus.GetComponent<PatrolSkeletonAI>(), "The Rotting Colossus", "The ground heaves as the Colossus wakes",
-            "The Colossus Crumbles", "The rot loosens its grip on the grove");
+            "The Colossus Crumbles", "The rot loosens its grip on the grove", "THE ROTTING COLOSSUS", "THE KING'S EXECUTIONER, UNMADE");
 
         K.Pickup("crimson_flask", 52f, 1.2f);
         K.Pickup("soul_shard", 61f, 1.2f, 1, "grove_canopy_shard");
@@ -2758,6 +2916,18 @@ public static class Level3Grove
         foreach (float x in new[] { 75f, 155f, 260f }) K.Prop(G(8), x, 1f, "Backtiles", 6);
         foreach (float x in new[] { 50f, 120f, 180f, 250f, 280f })
             K.PointLight(x, 2.5f, new Color(0.6f, 0.45f, 1f), 0.8f, 6f); // crystal glow
+
+        // Denser corrupted growth: hanging vines, glowing crystals, rot heaps and rock arches.
+        foreach (float x in new[] { 12f, 41f, 67f, 95f, 118f, 147f, 173f, 201f, 227f, 263f, 285f })
+            K.Sprite(K.Decor, "Hanging Vine", G(14), new Vector3(x, K.FloorY(x) + 7.5f, 0), 1.3f, "Backtiles", 1, new Color(0.7f, 0.85f, 0.7f));
+        foreach (float x in new[] { 22f, 64f, 112f, 158f, 205f, 247f, 279f })
+        {
+            K.Prop(G(3 + ((int)x % 3)), x, 0.9f, "Backtiles", 6, x % 2 == 0);
+            K.PointLight(x, 1.2f, new Color(0.65f, 0.4f, 1f), 0.7f, 4f).gameObject.AddComponent<LightFlicker>();
+        }
+        foreach (float x in new[] { 31f, 87f, 136f, 218f, 270f }) K.Prop(G(8), x, 0.9f, "Backtiles", 7);   // rot heaps
+        foreach (float x in new[] { 54f, 186f }) K.Prop(G(11), x, 1.2f, "Backtiles", 2);                    // stone arches
+        foreach (float x in new[] { 6f, 99f, 254f }) K.Prop(G(2), x, 1.1f, "Backtiles", 5);                 // roots
 
         K.Atmosphere(new Color(0.65f, 0.85f, 0.75f), 0.72f, new Color(0.55f, 0.8f, 0.6f), 0.12f,
             new K.VolumeLook("GrovePost", 0.4f, 0.85f, 10f, -5f, new Color(0.9f, 1f, 0.92f)),
@@ -2813,9 +2983,9 @@ public static class Level4Taiga
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 36f);
+        K.Camera(8.5f, 36f, new Color(0.55f, 0.66f, 0.78f));
 
-        K.Banner(3.8f, "The Frozen Taiga", "The last road to the castle");
+        K.Chapter("CHAPTER IV", "The Frozen Taiga", "A frozen mountain pass, the last road to the castle. The cold here kills as surely as a blade.");
         var note = K.SpriteAt("Assets/Art/Castle-Hall/Tiles/Props.png", "Props_1");
         K.Note(12f, "Smith's Letter",
             "We forged for the old king and we will not forge for a usurper. The frost watch can starve us if they like.\n\n" +
@@ -2846,7 +3016,7 @@ public static class Level4Taiga
             K.L("frostbrand", 1f), K.L("frost_amulet", 1f), K.L("soul_shard", 1f, 2, 3), K.L("crimson_flask", 1f, 2, 2));
         var hunter = K.Enemy(K.Kind.EliteNinja, 270f, "Warden's Hunter", frostElite);
         K.BossArena(254f, warden.GetComponent<PatrolSkeletonAI>(), "The Frost Warden", "Ice cracks as the Warden lifts Frostbrand's sheath",
-            "The Warden Falls", "Frostbrand is yours");
+            "The Warden Falls", "Frostbrand is yours", "THE FROST WARDEN", "GUARDIAN OF FROSTBRAND");
 
         K.Pickup("frost_key", 105.5f, 1.3f, 1, "taiga_frost_key");
         K.Gate(107.5f, "frost_key", "taiga_vault", K.SpriteAt("Assets/Art/Graveyard/Tiles.png", "Tiles_234"));
@@ -2862,6 +3032,12 @@ public static class Level4Taiga
         float[] stumps = { 6f, 60f, 124f, 185f, 228f, 262f };
         for (int i = 0; i < stumps.Length; i++) K.Prop(T(i % 2 == 0 ? 3 : 5), stumps[i], 0.9f, "Backtiles", 2, i % 2 == 1, 0.3f, Frost);
         foreach (float x in new[] { 40f, 116f, 210f, 278f }) K.PointLight(x, 3f, new Color(0.6f, 0.8f, 1f), 0.7f, 7f);
+
+        // More of the frozen forest: bushes, stumps, frozen boulders, and the smiths' braziers.
+        foreach (float x in new[] { 9f, 33f, 72f, 92f, 128f, 156f, 182f, 208f, 244f, 271f, 298f }) K.Prop(T(1), x, 0.85f, "Backtiles", 5, x % 2 == 0, 0.1f, Frost);
+        foreach (float x in new[] { 26f, 84f, 145f, 200f, 258f }) K.Prop(T(9), x, 0.8f, "Backtiles", 3, false, 0.25f, Frost);
+        foreach (float x in new[] { 55f, 170f, 240f }) K.Torch(x, 1.2f, 1.1f);
+        foreach (float x in new[] { 55f, 170f, 240f }) K.Smoke(x, 1.8f, 0.6f);
 
         K.Atmosphere(new Color(0.75f, 0.85f, 1f), 0.85f, new Color(0.85f, 0.92f, 1f), 0.14f,
             new K.VolumeLook("TaigaPost", 0.35f, 0.9f, 12f, -18f, new Color(0.9f, 0.95f, 1.05f)),
@@ -2929,9 +3105,9 @@ public static class Level5Castle
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 34f);
+        K.Camera(8.5f, 34f, new Color(0.05f, 0.04f, 0.07f));
 
-        K.Banner(3.8f, "The Fallen Castle", "The halls you once guarded");
+        K.Chapter("CHAPTER V", "The Fallen Castle", "The halls Aldric once guarded. Familiar stone, and everything in it ruined.");
         var note = P(9);
         K.Note(14f, "Steward's Ledger",
             "By order of King Malvric, the old guard's names are struck from the rolls.\n\n" +
@@ -2960,7 +3136,8 @@ public static class Level5Castle
             K.L("royal_guard_plate", 1f), K.L("verdant_shard", 1f, 2, 3), K.L("soul_shard", 1f, 2, 3), K.L("crimson_flask", 1f, 2, 2));
         var g1 = K.Enemy(K.Kind.EliteSkeleton, 258f, "Black Guard", black);
         K.BossArena(242f, captain.GetComponent<PatrolSkeletonAI>(), "Sir Dravek, Captain of the Black Guard",
-            "\"Captain? No. I am captain now.\"", "Dravek Falls", "The way to the throne lies open");
+            "\"Captain? No. I am captain now.\"", "Dravek Falls", "The way to the throne lies open",
+            "SIR DRAVEK", "CAPTAIN OF THE BLACK GUARD", "Captain? No. I am captain now.");
 
         // The vault: royal key from Dravek opens it on the way back, or via the climb if found earlier
         K.Gate(134f, "royal_key", "castle_vault", K.SpriteAt("Assets/Art/Graveyard/Tiles.png", "Tiles_234"));
@@ -2977,6 +3154,14 @@ public static class Level5Castle
         foreach (float x in new[] { 34f, 126f, 198f }) K.Prop(P(10), x, 1.1f, "Backtiles", 6);               // benches
         foreach (float x in new[] { 52f, 94f, 176f, 250f }) K.Prop(P(7), x, 0.8f, "Backtiles", 7);           // skulls
         foreach (float x in new[] { 28f, 146f, 236f }) K.Prop(C(0), x, 1.3f, "Backtiles", 3);                // statues
+
+        // Lived-in ruin: wall torches, books, bottles, sacks, fallen banners and chains.
+        for (float x = 12f; x < 285f; x += 21f) K.Torch(x, 3.6f, 1f);
+        foreach (float x in new[] { 18f, 62f, 104f, 165f, 208f, 262f }) K.Prop(P(13 + (int)x % 4), x, 1f, "Backtiles", 8);    // books
+        foreach (float x in new[] { 46f, 116f, 188f, 244f }) K.Prop(P(17 + (int)x % 4), x, 0.9f, "Backtiles", 8);             // bottles
+        foreach (float x in new[] { 70f, 152f, 228f }) K.Prop(P(11), x, 1f, "Backtiles", 7);                                    // sacks
+        foreach (float x in new[] { 40f, 134f, 220f }) K.Prop(C(13), x, 1f, "Backtiles", 2, false, 0.6f, new Color(0.6f, 0.45f, 0.55f)); // fallen banners
+        foreach (float x in new[] { 98f, 180f, 275f }) K.Sprite(K.Decor, "Chain", P(2), new Vector3(x, K.FloorY(x) + 6.5f, 0), 1.2f, "Backtiles", 3, new Color(0.7f, 0.7f, 0.75f));
 
         K.Atmosphere(new Color(0.8f, 0.72f, 0.95f), 0.7f, new Color(0.6f, 0.5f, 0.75f), 0.08f,
             new K.VolumeLook("CastlePost", 0.42f, 0.8f, 14f, -10f, new Color(0.95f, 0.9f, 1f)),
@@ -3017,9 +3202,10 @@ public static class Level6Throne
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 30f);
+        K.Camera(8.5f, 30f, new Color(0.06f, 0.02f, 0.03f));
 
-        K.Banner(3.8f, "The Usurper's Throne", "Here it ends");
+        K.Chapter("CHAPTER VI", "The Usurper's Throne", "Here it ends.",
+            "The usurper waits upon your throne, Aldric.", "He wears your king's crown and your name for a traitor. End it.");
         K.Note(16f, "Your Own Portrait",
             "Your face, slashed through with a blade. Beneath it someone has written:\n\n\"The traitor captain.\"\n\n" +
             "Malvric has told the realm you betrayed the king. Only you know the truth.", C5.P(1), 1.1f);
@@ -3042,12 +3228,25 @@ public static class Level6Throne
         var pp = so.FindProperty("summonPoints"); pp.arraySize = 2; pp.GetArrayElementAtIndex(0).objectReferenceValue = pts[0]; pp.GetArrayElementAtIndex(1).objectReferenceValue = pts[1];
         so.ApplyModifiedPropertiesWithoutUndo();
         K.BossArena(114f, ai, "Lord Malvric, the Usurper", "\"Sir Aldric. I buried you myself.\"",
-            "The Usurper Is Dead", "Vengeance is done. The crown is free.");
+            "The Usurper Is Dead", "Vengeance is done. The crown is free.", "LORD MALVRIC", "THE USURPER KING", "Sir Aldric. I buried you myself.");
+
+        // Epilogue after Malvric falls.
+        var epi = K.Child(K.Content, "Epilogue").gameObject.AddComponent<EpilogueCinematic>();
+        var throneMark = K.Child(K.Content, "Throne", new Vector3(183f, K.FloorY(183f), 0));
+        K.Set(epi, "finalBoss", malvric);
+        K.Set(epi, "throne", throneMark);
 
         K.Pickup("crimson_flask", 50f);
         K.Pickup("verdant_tonic", 100f, 1.2f);
         K.Pickup("prism_relic", 69f, 1.4f, 1, "relic_throne");
         K.Coins(4, 30, 1.3f, 6);
+
+        // The throne room: torches between the pillars, braziers flanking the dais, red carpet runner.
+        for (float x = 8f; x < 176f; x += 16f) K.Torch(x, 3.6f, 1.05f);
+        K.Torch(177f, 1.4f, 1.5f); K.Torch(189f, 1.4f, 1.5f);
+        foreach (float x in new[] { 30f, 78f, 150f }) K.Prop(C5.P(10), x, 1.1f, "Backtiles", 7);
+        foreach (float x in new[] { 22f, 96f }) K.Prop(C5.P(5), x, 1.1f, "Backtiles", 6);
+        K.Tiled(K.Decor, "Royal Carpet", C5.C(15), new Vector3(150f, K.FloorY(150f) + 0.08f, 0), new Vector2(60f, 0.5f), "Ground", 6, new Color(0.9f, 0.25f, 0.3f));
 
         K.Atmosphere(new Color(1f, 0.75f, 0.72f), 0.68f, new Color(0.7f, 0.4f, 0.45f), 0.08f,
             new K.VolumeLook("ThronePost", 0.45f, 1f, 16f, -6f, new Color(1f, 0.92f, 0.9f)),

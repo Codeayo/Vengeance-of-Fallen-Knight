@@ -90,7 +90,7 @@ public class Enemy_behaviour : MonoBehaviour
 
     void Update()
     {
-        if (isDead)
+        if (isDead || Cinematic.IsPlaying)
             return;
 
         if (target == null)
@@ -282,6 +282,8 @@ public class Enemy_behaviour : MonoBehaviour
 
         foreach (Collider2D collider in GetComponentsInChildren<Collider2D>())
             collider.enabled = false;
+        // Keep the corpse on the ground while the death animation plays.
+        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.bodyType = RigidbodyType2D.Kinematic; }
 
         Destroy(gameObject, 2f);
     }

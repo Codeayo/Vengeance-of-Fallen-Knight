@@ -13,6 +13,10 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private Slider masterSlider;
+    [SerializeField] private Slider ambientSlider;
+    [SerializeField] private TMP_Text masterValue;
+    [SerializeField] private TMP_Text ambientValue;
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider sfxSlider;
     [SerializeField] private TMP_Text musicValue;
@@ -30,6 +34,18 @@ public class PauseMenu : MonoBehaviour
 #if UNITY_WEBGL
         if (quitButton != null) quitButton.gameObject.SetActive(false);
 #endif
+
+        if (masterSlider != null)
+        {
+            masterSlider.SetValueWithoutNotify(GameSettings.MasterVolume);
+            masterSlider.onValueChanged.AddListener(v => { GameSettings.MasterVolume = v; Labels(); });
+        }
+
+        if (ambientSlider != null)
+        {
+            ambientSlider.SetValueWithoutNotify(GameSettings.AmbientVolume);
+            ambientSlider.onValueChanged.AddListener(v => { GameSettings.AmbientVolume = v; Labels(); });
+        }
 
         if (musicSlider != null)
         {
@@ -55,7 +71,7 @@ public class PauseMenu : MonoBehaviour
 
     private void Update()
     {
-        if (SceneFader.IsLoading || GameHUD.IsGameOverShowing || InventoryUI.IsOpen || ReadPanel.IsOpen || ShrineMenu.IsOpen)
+        if (SceneFader.IsLoading || GameHUD.IsGameOverShowing || InventoryUI.IsOpen || ReadPanel.IsOpen || ShrineMenu.IsOpen || Cinematic.IsPlaying)
             return;
 
         bool toggle = (Keyboard.current != null &&
@@ -121,6 +137,8 @@ public class PauseMenu : MonoBehaviour
 
     private void Labels()
     {
+        if (masterValue != null) masterValue.text = $"{Mathf.RoundToInt(GameSettings.MasterVolume * 100f)}%";
+        if (ambientValue != null) ambientValue.text = $"{Mathf.RoundToInt(GameSettings.AmbientVolume * 100f)}%";
         if (musicValue != null) musicValue.text = $"{Mathf.RoundToInt(GameSettings.MusicVolume * 100f)}%";
         if (sfxValue != null) sfxValue.text = $"{Mathf.RoundToInt(GameSettings.SfxVolume * 100f)}%";
     }

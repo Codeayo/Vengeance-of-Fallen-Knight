@@ -78,6 +78,8 @@ public class Cinematic : MonoBehaviour
         Player.ControlLocked = true;
         Instance.barTarget = letterbox ? 1f : 0f;
         Instance.skipHeld = 0f;
+        // Clear anything left over from an interrupted line (e.g. a boss killed mid-sentence).
+        SetGroup(Instance.subtitleGroup, 0); SetGroup(Instance.titleGroup, 0);
         MusicManager.Instance?.Duck(0.55f);
     }
 

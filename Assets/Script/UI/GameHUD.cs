@@ -183,8 +183,28 @@ public class GameHUD : MonoBehaviour
         SetPrompt(null);
     }
 
+    private CanvasGroup[] gameplayGroups;
+
     private void Update()
     {
+        // Gameplay HUD steps aside while a cinematic plays.
+        if (gameplayGroups == null)
+        {
+            var list = new System.Collections.Generic.List<CanvasGroup>();
+            foreach (string n in new[] { "Status", "Pickup Feed", "Controls" })
+            {
+                var t = transform.Find(n);
+                if (t == null) continue;
+                var g = t.GetComponent<CanvasGroup>();
+                if (g == null) g = t.gameObject.AddComponent<CanvasGroup>();
+                if (n != "Controls") list.Add(g);
+            }
+            gameplayGroups = list.ToArray();
+        }
+        float hudTarget = Cinematic.IsPlaying ? 0f : 1f;
+        foreach (var g in gameplayGroups)
+            if (g != null) g.alpha = Mathf.MoveTowards(g.alpha, hudTarget, Time.unscaledDeltaTime * 3f);
+
         float dt = Time.unscaledDeltaTime;
         shownHealth = Mathf.MoveTowards(shownHealth, targetHealth, dt * 2.5f);
         if (trailDelay > 0f)

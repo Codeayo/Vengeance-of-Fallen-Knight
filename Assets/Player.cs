@@ -633,7 +633,7 @@ public class Player : MonoBehaviour
 
     public void TakeDamage(int amount, bool ignoreInvulnerability)
     {
-        if (isDead || isRespawning || amount <= 0) return;
+        if (isDead || isRespawning || amount <= 0 || Cinematic.IsPlaying) return;
         if (!ignoreInvulnerability && (isRolling || Time.time < invulnerableUntil)) return;
         invulnerableUntil = Time.time + invulnerabilityAfterHit;
 
@@ -759,6 +759,7 @@ public class Player : MonoBehaviour
         transform.position = respawnPoint;
         if (rb != null)
         {
+            rb.bodyType = RigidbodyType2D.Dynamic;
             rb.simulated = true;
             rb.position = respawnPoint;
             rb.linearVelocity = Vector2.zero;
@@ -784,8 +785,12 @@ public class Player : MonoBehaviour
             anim.SetTrigger(DEATH);
         }
 
+        // Hold the body in place: with its colliders off it would otherwise fall through the floor.
         if (rb != null)
+        {
             rb.linearVelocity = Vector2.zero;
+            rb.bodyType = RigidbodyType2D.Kinematic;
+        }
 
         foreach (Collider2D c in GetComponents<Collider2D>())
             c.enabled = false;

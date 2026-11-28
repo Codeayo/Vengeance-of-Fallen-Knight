@@ -34,15 +34,16 @@ public static class Level3Grove
         K.Ground(250, 296, 2f, st);
         K.FinishTerrain(st);
 
-        for (int i = 0; i < 3; i++)
-            K.Backdrop(K.SpriteFile($"Assets/Art/Mushroom_Grove/Assets/Background/Background_{i}.png"), 0.9f - i * 0.18f, 40f, 9f,
-                i == 0 ? "Background" : "backmid", i, new Color(0.6f, 0.72f, 0.66f));
+        Color grove = new Color(0.78f, 0.92f, 0.82f);
+        K.Backdrop(K.SpriteFile("Assets/Art/Mushroom_Grove/Assets/Background/Background_0.png"), 0.95f, 52f, 13f, "Background", 0, grove);
+        K.Backdrop(K.SpriteFile("Assets/Art/Mushroom_Grove/Assets/Background/Background_1.png"), 0.75f, 32f, 9f, "backmid", 1, grove);
+        K.Backdrop(K.SpriteFile("Assets/Art/Mushroom_Grove/Assets/Background/Background_2.png"), 0.55f, 30f, 8f, "backmid", 2, grove);
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 30f);
+        K.Camera(8.5f, 30f, new Color(0.03f, 0.09f, 0.06f));
 
-        K.Banner(3.8f, "The Rotting Grove", "Malvric's sorcery took root here");
+        K.Chapter("CHAPTER III", "The Rotting Grove", "The hermits' wood, corrupted by Malvric's sorcery. The dead do not stay buried here.");
         var note = K.SpriteAt("Assets/Art/Castle-Hall/Tiles/Props.png", "Props_9");
         K.Note(14f, "Hermit's Warning",
             "Turn back, traveller. Since the usurper's mages came, the dead do not stay in the earth here.\n\n" +
@@ -72,7 +73,7 @@ public static class Level3Grove
             K.L("sporebane", 1f), K.L("hermits_map", 1f), K.L("verdant_tonic", 1f, 2, 2), K.L("verdant_shard", 1f, 2, 3));
         var add1 = K.Enemy(K.Kind.Skeleton, 266f, "Bog Risen", rot, 0, 0, 0, false);
         K.BossArena(258f, colossus.GetComponent<PatrolSkeletonAI>(), "The Rotting Colossus", "The ground heaves as the Colossus wakes",
-            "The Colossus Crumbles", "The rot loosens its grip on the grove");
+            "The Colossus Crumbles", "The rot loosens its grip on the grove", "THE ROTTING COLOSSUS", "THE KING'S EXECUTIONER, UNMADE");
 
         K.Pickup("crimson_flask", 52f, 1.2f);
         K.Pickup("soul_shard", 61f, 1.2f, 1, "grove_canopy_shard");
@@ -95,6 +96,18 @@ public static class Level3Grove
         foreach (float x in new[] { 75f, 155f, 260f }) K.Prop(G(8), x, 1f, "Backtiles", 6);
         foreach (float x in new[] { 50f, 120f, 180f, 250f, 280f })
             K.PointLight(x, 2.5f, new Color(0.6f, 0.45f, 1f), 0.8f, 6f); // crystal glow
+
+        // Denser corrupted growth: hanging vines, glowing crystals, rot heaps and rock arches.
+        foreach (float x in new[] { 12f, 41f, 67f, 95f, 118f, 147f, 173f, 201f, 227f, 263f, 285f })
+            K.Sprite(K.Decor, "Hanging Vine", G(14), new Vector3(x, K.FloorY(x) + 7.5f, 0), 1.3f, "Backtiles", 1, new Color(0.7f, 0.85f, 0.7f));
+        foreach (float x in new[] { 22f, 64f, 112f, 158f, 205f, 247f, 279f })
+        {
+            K.Prop(G(3 + ((int)x % 3)), x, 0.9f, "Backtiles", 6, x % 2 == 0);
+            K.PointLight(x, 1.2f, new Color(0.65f, 0.4f, 1f), 0.7f, 4f).gameObject.AddComponent<LightFlicker>();
+        }
+        foreach (float x in new[] { 31f, 87f, 136f, 218f, 270f }) K.Prop(G(8), x, 0.9f, "Backtiles", 7);   // rot heaps
+        foreach (float x in new[] { 54f, 186f }) K.Prop(G(11), x, 1.2f, "Backtiles", 2);                    // stone arches
+        foreach (float x in new[] { 6f, 99f, 254f }) K.Prop(G(2), x, 1.1f, "Backtiles", 5);                 // roots
 
         K.Atmosphere(new Color(0.65f, 0.85f, 0.75f), 0.72f, new Color(0.55f, 0.8f, 0.6f), 0.12f,
             new K.VolumeLook("GrovePost", 0.4f, 0.85f, 10f, -5f, new Color(0.9f, 1f, 0.92f)),

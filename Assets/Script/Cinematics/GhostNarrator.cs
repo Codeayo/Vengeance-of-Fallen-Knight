@@ -99,7 +99,7 @@ public class GhostNarrator : MonoBehaviour
         wisps.Play();
         targetAlpha = 1f;
         float start = alpha, k = 0f;
-        while (k < seconds)
+        while (k < seconds && this != null)
         {
             k += Time.unscaledDeltaTime;
             SetAlpha(Mathf.Lerp(start, 1f, Mathf.SmoothStep(0, 1, k / seconds)));
@@ -113,17 +113,21 @@ public class GhostNarrator : MonoBehaviour
         targetAlpha = 0f;
         wisps.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         float start = alpha, k = 0f;
-        while (k < seconds)
+        while (k < seconds && this != null)
         {
             k += Time.unscaledDeltaTime;
             SetAlpha(Mathf.Lerp(start, 0f, k / seconds));
             transform.position += Vector3.up * Time.unscaledDeltaTime * 0.6f;
             yield return null;
         }
-        Destroy(gameObject);
+        if (this != null) Destroy(gameObject);
     }
 
-    public void Whisper() => MusicManager.Instance?.PlayAt("ghost_whisper", transform.position, 0.55f, 0.05f, 1.2f);
+    public void Whisper()
+    {
+        if (this == null) return;
+        MusicManager.Instance?.PlayAt("ghost_whisper", transform.position, 0.55f, 0.05f, 1.2f);
+    }
 
     private void SetAlpha(float a)
     {

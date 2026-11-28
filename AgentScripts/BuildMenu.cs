@@ -152,23 +152,27 @@ public static class BuildMenu
         UIKit.SetVerticalNav(levelButtons.Cast<Selectable>().Append(lvlBack).ToArray());
 
         // Settings
-        var set = UIKit.Panel("Settings Panel", ct, new Vector2(1060, 700), "Settings", out var setGroup);
-        string[] rows = { "Music", "Effects", "Fullscreen", "Resolution", "Quality" };
+        var set = UIKit.Panel("Settings Panel", ct, new Vector2(1060, 860), "Settings", out var setGroup);
+        string[] rows = { "Master", "Music", "Effects", "Ambience", "Fullscreen", "Resolution", "Quality" };
         var rowLabels = new TMP_Text[rows.Length];
         for (int i = 0; i < rows.Length; i++)
         {
-            float y = -140 - i * 84;
+            float y = -130 - i * 72;
             rowLabels[i] = UIKit.Text(UIKit.Rect(rows[i] + " Label", set, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(100, y), new Vector2(330, 60)),
                 rows[i], 32, UIKit.Bone, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold | FontStyles.UpperCase, 5f);
         }
 
-        var music = UIKit.MakeSlider("Music Slider", set, new Vector2(440, -140), new Vector2(360, 50), rowLabels[0]);
-        var sfx = UIKit.MakeSlider("Effects Slider", set, new Vector2(440, -224), new Vector2(360, 50), rowLabels[1]);
-        var musicVal = ValueText(set, "Music Value", -140);
-        var sfxVal = ValueText(set, "Effects Value", -224);
+        var master = UIKit.MakeSlider("Master Slider", set, new Vector2(440, -130), new Vector2(360, 50), rowLabels[0]);
+        var music = UIKit.MakeSlider("Music Slider", set, new Vector2(440, -202), new Vector2(360, 50), rowLabels[1]);
+        var sfx = UIKit.MakeSlider("Effects Slider", set, new Vector2(440, -274), new Vector2(360, 50), rowLabels[2]);
+        var amb = UIKit.MakeSlider("Ambience Slider", set, new Vector2(440, -346), new Vector2(360, 50), rowLabels[3]);
+        var masterVal = ValueText(set, "Master Value", -130);
+        var musicVal = ValueText(set, "Music Value", -202);
+        var sfxVal = ValueText(set, "Effects Value", -274);
+        var ambVal = ValueText(set, "Ambience Value", -346);
 
         // Fullscreen toggle
-        var tg = UIKit.Rect("Fullscreen Toggle", set, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(440, -308), new Vector2(360, 54));
+        var tg = UIKit.Rect("Fullscreen Toggle", set, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(440, -418), new Vector2(360, 54));
         var tgHit = UIKit.Img(tg, UIKit.Gen("WhitePixel"), new Color(0, 0, 0, 0), true);
         var box = UIKit.Rect("Box", tg, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(0, 0), new Vector2(46, 46));
         UIKit.Img(box, UIKit.Gen("WhitePixel"), new Color(0.6f, 0.45f, 0.22f, 0.9f));
@@ -182,22 +186,22 @@ public static class BuildMenu
         toggle.transition = Selectable.Transition.None;
         var tmb = tg.gameObject.AddComponent<MenuButton>();
         var tso = new SerializedObject(tmb);
-        tso.FindProperty("label").objectReferenceValue = rowLabels[2];
+        tso.FindProperty("label").objectReferenceValue = rowLabels[4];
         tso.FindProperty("selectedScale").floatValue = 1f;
         tso.FindProperty("labelSlide").floatValue = 0f;
         tso.ApplyModifiedPropertiesWithoutUndo();
-        var fsVal = ValueText(set, "Fullscreen Value", -308);
+        var fsVal = ValueText(set, "Fullscreen Value", -418);
 
-        var res = UIKit.MakeSlider("Resolution Slider", set, new Vector2(440, -392), new Vector2(360, 50), rowLabels[3], false);
+        var res = UIKit.MakeSlider("Resolution Slider", set, new Vector2(440, -490), new Vector2(360, 50), rowLabels[5], false);
         var resVal = UIKit.Text(UIKit.Rect("Resolution Value", res.transform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero),
             "< 1920 x 1080 >", 28, UIKit.Gold, TextAlignmentOptions.Center, UIKit.BodyMat, FontStyles.Bold);
-        var qual = UIKit.MakeSlider("Quality Slider", set, new Vector2(440, -476), new Vector2(360, 50), rowLabels[4], false);
+        var qual = UIKit.MakeSlider("Quality Slider", set, new Vector2(440, -562), new Vector2(360, 50), rowLabels[6], false);
         var qualVal = UIKit.Text(UIKit.Rect("Quality Value", qual.transform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero),
             "< High >", 28, UIKit.Gold, TextAlignmentOptions.Center, UIKit.BodyMat, FontStyles.Bold);
-        UIKit.Text(UIKit.Rect("Hint", set, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 118), new Vector2(900, 40)),
+        UIKit.Text(UIKit.Rect("Hint", set, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 140), new Vector2(900, 40)),
             "Use Left / Right to adjust.  Display changes apply in the built game.", 22, UIKit.Ash, TextAlignmentOptions.Center, UIKit.BodyMat, FontStyles.Italic);
-        var setBack = UIKit.MenuButton("Back", set, "Back", new Vector2(440, -620), new Vector2(240, 60), 32);
-        UIKit.SetVerticalNav(new Selectable[] { music, sfx, toggle, res, qual, setBack });
+        var setBack = UIKit.MenuButton("Back", set, "Back", new Vector2(440, -780), new Vector2(240, 60), 32);
+        UIKit.SetVerticalNav(new Selectable[] { master, music, sfx, amb, toggle, res, qual, setBack });
 
         // About
         var about = UIKit.Panel("About Panel", ct, new Vector2(1240, 780), "About", out var aboutGroup);
@@ -258,6 +262,10 @@ public static class BuildMenu
             lb.GetArrayElementAtIndex(i).objectReferenceValue = levelButtons[i];
         so.FindProperty("levelBackButton").objectReferenceValue = lvlBack;
         so.FindProperty("musicSlider").objectReferenceValue = music;
+        so.FindProperty("masterSlider").objectReferenceValue = master;
+        so.FindProperty("ambientSlider").objectReferenceValue = amb;
+        so.FindProperty("masterValue").objectReferenceValue = masterVal;
+        so.FindProperty("ambientValue").objectReferenceValue = ambVal;
         so.FindProperty("sfxSlider").objectReferenceValue = sfx;
         so.FindProperty("fullscreenToggle").objectReferenceValue = toggle;
         so.FindProperty("resolutionSlider").objectReferenceValue = res;

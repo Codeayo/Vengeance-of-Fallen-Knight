@@ -16,7 +16,7 @@ public static class BuildAnimators
             .OrderBy(s => { var p = s.name.Split('_'); return int.TryParse(p.Last(), out int n) ? n : 0; }).ToArray();
 
     /// <summary>Creates (or replaces) a sprite clip from frames.</summary>
-    static AnimationClip Clip(string name, Sprite[] frames, float fps, bool loop)
+    static AnimationClip Clip(string name, Sprite[] frames, float fps, bool loop, string target = "")
     {
         UIKit.EnsureDir(OutDir);
         string path = $"{OutDir}/{name}.anim";
@@ -24,7 +24,7 @@ public static class BuildAnimators
         if (clip == null) { clip = new AnimationClip(); AssetDatabase.CreateAsset(clip, path); }
         clip.ClearCurves();
         clip.frameRate = fps;
-        var binding = new EditorCurveBinding { type = typeof(SpriteRenderer), path = "", propertyName = "m_Sprite" };
+        var binding = new EditorCurveBinding { type = typeof(SpriteRenderer), path = target, propertyName = "m_Sprite" };
         var keys = new ObjectReferenceKeyframe[frames.Length + 1];
         for (int i = 0; i < frames.Length; i++) keys[i] = new ObjectReferenceKeyframe { time = i / fps, value = frames[i] };
         keys[frames.Length] = new ObjectReferenceKeyframe { time = frames.Length / fps, value = frames[frames.Length - 1] };
@@ -211,12 +211,12 @@ public static class BuildAnimators
     static void Axe()
     {
         string dir = "Assets/Enemy/Skeleton 1/Sprite Sheets/";
-        var idle = Clip("Axe_Idle", Frames(dir + "Skeleton Idle.png"), 10, true);
-        var walk = Clip("Axe_Walk", Frames(dir + "Skeleton Walk.png"), 13, true);
-        var atk = Clip("Axe_Attack", Frames(dir + "Skeleton Attack.png"), 16, true);
-        var hit = Clip("Axe_Hit", Frames(dir + "Skeleton Hit.png"), 14, false);
-        var dead = Clip("Axe_Death", Frames(dir + "Skeleton Dead.png"), 13, false);
-        var react = Clip("Axe_React", Frames(dir + "Skeleton React.png"), 10, false);
+        var idle = Clip("Axe_Idle", Frames(dir + "Skeleton Idle.png"), 10, true, "enemy_spirtes");
+        var walk = Clip("Axe_Walk", Frames(dir + "Skeleton Walk.png"), 13, true, "enemy_spirtes");
+        var atk = Clip("Axe_Attack", Frames(dir + "Skeleton Attack.png"), 16, true, "enemy_spirtes");
+        var hit = Clip("Axe_Hit", Frames(dir + "Skeleton Hit.png"), 14, false, "enemy_spirtes");
+        var dead = Clip("Axe_Death", Frames(dir + "Skeleton Dead.png"), 13, false, "enemy_spirtes");
+        var react = Clip("Axe_React", Frames(dir + "Skeleton React.png"), 10, false, "enemy_spirtes");
 
         var c = Reset("Assets/Animations/EnemyAnimation/Enemy.controller",
             ("canWalk", B), ("Attack", B), ("Hurt", Tr), ("Death", Tr), ("Alert", Tr));

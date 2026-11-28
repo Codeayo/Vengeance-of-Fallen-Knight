@@ -15,7 +15,7 @@ public class PlayerInteractor : MonoBehaviour
 
     private void Update()
     {
-        if (player.IsDead || PauseMenu.IsPaused || InventoryUI.IsOpen || ReadPanel.IsOpen || ShrineMenu.IsOpen)
+        if (player.IsDead || Cinematic.IsPlaying || PauseMenu.IsPaused || InventoryUI.IsOpen || ReadPanel.IsOpen || ShrineMenu.IsOpen)
         {
             GameHUD.Instance?.SetPrompt(null);
             return;
