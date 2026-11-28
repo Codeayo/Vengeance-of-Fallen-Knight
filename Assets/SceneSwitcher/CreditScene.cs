@@ -1,35 +1,66 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
+/// <summary>
+/// Credits roll: scrolls the credits upward until the last line has passed, holds the closing
+/// card, then returns to the main menu. Hold Space / gamepad A to speed up; Esc / Start skips.
+/// </summary>
 public class CreditScene : MonoBehaviour
 {
-    public float scrollSpeed = 40f;
-    [SerializeField] private float returnToMenuAfterSeconds = 75f;
+    public float scrollSpeed = 70f;
+    [SerializeField] private RectTransform content;
+    [SerializeField] private CanvasGroup closingCard;
+    [SerializeField] private float closingHold = 6f;
     [SerializeField] private string mainMenuSceneName = "Main Menu";
+    // Legacy field kept so older scene data still deserializes.
+    [SerializeField, HideInInspector] private float returnToMenuAfterSeconds;
 
-    private RectTransform rectTransform;
-    private float startedAt;
+    private float startY;
+    private float doneAt = -1f;
+    private bool leaving;
 
-    void Start()
+    private void Start()
     {
-        rectTransform = GetComponent<RectTransform>();
-        startedAt = Time.unscaledTime;
+        if (content == null) content = GetComponent<RectTransform>();
+        startY = content.anchoredPosition.y;
+        if (closingCard != null) closingCard.alpha = 0f;
+        SceneFader.FadeFromBlack(1.5f);
     }
 
-    void Update()
+    private void Update()
     {
-        if (rectTransform != null)
-            rectTransform.anchoredPosition += new Vector2(0, scrollSpeed * Time.deltaTime);
-
-        bool skipRequested = Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Space);
-        bool creditsFinished = returnToMenuAfterSeconds > 0f &&
-                               Time.unscaledTime - startedAt >= returnToMenuAfterSeconds;
-        if (!skipRequested && !creditsFinished)
+        if (leaving || content == null)
             return;
 
+        bool fast = (Keyboard.current != null && (Keyboard.current.spaceKey.isPressed || Keyboard.current.enterKey.isPressed)) ||
+                    (Gamepad.current != null && Gamepad.current.buttonSouth.isPressed);
+        bool skip = (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) ||
+                    (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame);
+
+        var canvas = content.GetComponentInParent<Canvas>().GetComponent<RectTransform>();
+        float travel = content.rect.height + canvas.rect.height;
+        if (content.anchoredPosition.y - startY < travel)
+        {
+            content.anchoredPosition += new Vector2(0f, scrollSpeed * (fast ? 4f : 1f) * Time.deltaTime);
+        }
+        else if (doneAt < 0f)
+        {
+            doneAt = Time.time;
+        }
+
+        if (doneAt >= 0f && closingCard != null)
+            closingCard.alpha = Mathf.Clamp01((Time.time - doneAt) / 1.5f);
+
+        if (skip || (doneAt >= 0f && Time.time - doneAt > closingHold))
+            Leave();
+    }
+
+    private void Leave()
+    {
         // The tale is complete: clear the finished run (chapters stay unlocked) and return to the menu.
-        enabled = false;
+        leaving = true;
         GameSave.NewRun();
+        GameSave.IntroPending = false;
         SceneFader.LoadScene(mainMenuSceneName);
     }
 }
