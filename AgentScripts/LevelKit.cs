@@ -395,6 +395,7 @@ public static class LevelKit
     {
         var p = GameObject.FindGameObjectWithTag("Player");
         p.layer = LayerMask.NameToLayer("Player");
+        p.transform.localScale = new Vector3(0.95f, 1.05f, 1f); // same knight size in every chapter
         var rb = p.GetComponent<Rigidbody2D>();
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
@@ -675,6 +676,9 @@ public static class LevelKit
     }
 
     // ------------------------------------------------------------------ enemies
+    public const float SkeletonScale = 0.88f, EliteScale = 1.0f, GiantScale = 1.75f;
+    public static readonly Vector2 SkeletonBox = new Vector2(1.5f, 3.5f);
+
     public enum Kind { Skeleton, EliteSkeleton, GiantSkeleton, Axe, Ninja, EliteNinja, NinjaMaster }
 
     static GameObject Prefab(Kind k)
@@ -707,12 +711,15 @@ public static class LevelKit
 
         if (kind == Kind.Skeleton || kind == Kind.EliteSkeleton || kind == Kind.GiantSkeleton)
         {
-            Vector2 scale = kind == Kind.Skeleton ? new Vector2(1.15f, 1.2f) : kind == Kind.EliteSkeleton ? new Vector2(1.32f, 1.4f) : new Vector2(1.7f, 1.8f);
-            go.transform.localScale = new Vector3(scale.x, scale.y, 1);
+            // Sprite pivots sit at the feet: the transform is on the ground and the body box rises from it.
+            // Sizes relative to the knight: regular ~1x, elite ~1.15x, giant bosses ~2x.
+            float s = kind == Kind.Skeleton ? SkeletonScale : kind == Kind.EliteSkeleton ? EliteScale : GiantScale;
+            Vector2 scale = new Vector2(s, s);
+            go.transform.localScale = new Vector3(s, s, 1);
             var box = go.GetComponent<BoxCollider2D>();
-            box.size = new Vector2(1.1f, 3.8f); box.offset = new Vector2(0.4f, -0.05f);
+            box.size = SkeletonBox; box.offset = new Vector2(0f, SkeletonBox.y * 0.5f);
             var gc = go.transform.Find("GroundCheck");
-            if (gc != null) gc.localPosition = new Vector3(1.0f, -box.size.y * 0.5f + box.offset.y, 0);
+            if (gc != null) gc.localPosition = new Vector3(1.2f, 0.1f, 0);
             var ai = go.GetComponent<PatrolSkeletonAI>();
             var so = new SerializedObject(ai);
             so.FindProperty("maxHealth").intValue = hp > 0 ? hp : kind == Kind.Skeleton ? 50 : kind == Kind.EliteSkeleton ? 95 : 220;
@@ -728,7 +735,9 @@ public static class LevelKit
             ai.groundCheckDistance = 2.5f;
             if (go.GetComponent<FlipColliderSync>() == null) go.AddComponent<FlipColliderSync>();
             float gy = SurfaceY(x);
-            go.transform.position = new Vector3(x, gy + box.size.y * scale.y * 0.5f - box.offset.y * scale.y + 0.05f, 0);
+            go.transform.position = new Vector3(x, gy + 0.02f, 0);
+            var df = go.GetComponent<DamageFlash>();
+            if (df != null) SetF(df, "numberHeight", box.size.y * s * 1.1f);
             go.GetComponent<SpriteRenderer>().flipX = faceLeft;
             Record(go, box, ai, gc);
         }

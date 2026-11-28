@@ -92,7 +92,7 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
             GameHUD.Instance?.ShowToast("It rages!");
         }
 
-        float dist = Vector2.Distance(transform.position, player.position);
+        float dist = Vector2.Distance(Center, player.position);
 
         if (dist <= attackRange)
         {
@@ -150,7 +150,7 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
             animator.SetBool("PlayerInRange", false);
         }
 
-        Vector2 dir = (player.position - transform.position).normalized;
+        Vector2 dir = ((Vector2)player.position - Center).normalized;
         // Never chase off a ledge: hold position at the edge instead.
         bool safe = EnemyCore.GroundAhead(EnemyCore.Feet(gameObject), dir.x, 1.0f, 2.5f);
         if (animator != null && !safe)
@@ -182,7 +182,7 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
     {
         attacking = true;
         // Varied attacks: quick thrust, sweep, and (for big skeletons) a heavy overhead slam.
-        int index = Random.Range(0, transform.localScale.y > 1.6f ? 3 : 2);
+        int index = Random.Range(0, transform.localScale.y > 1.4f ? 3 : 2);
         bool heavy = index == 2;
         if (animator != null)
         {
@@ -193,7 +193,7 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
         yield return new WaitForSeconds(heavy ? attackWindup * 1.35f : attackWindup);
 
         // The hit only lands if the knight is still in reach when the blow falls (rolling away works).
-        if (!isDead && player != null && Vector2.Distance(transform.position, player.position) <= attackRange * 1.15f)
+        if (!isDead && player != null && Vector2.Distance(Center, player.position) <= attackRange * 1.15f)
         {
             Player playerCharacter = player.GetComponentInParent<Player>();
             if (playerCharacter != null)
@@ -223,6 +223,16 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
             animator.SetFloat("Speed", isDead || attacking ? 0f : Mathf.Abs(rb.linearVelocity.x));
     }
 
+    /// <summary>Middle of the body (the transform sits at the feet), used for reach and chase.</summary>
+    Vector2 Center
+    {
+        get
+        {
+            var c = GetComponent<Collider2D>();
+            return c != null && c.enabled ? (Vector2)c.bounds.center : (Vector2)transform.position + Vector2.up * 1.6f;
+        }
+    }
+
     bool PlayerIsDead()
     {
         Player p = player != null ? player.GetComponent<Player>() : null;
@@ -236,7 +246,7 @@ public class PatrolSkeletonAI : MonoBehaviour, IBossHealth
         if (dmg <= 0) return;
 
         // Elite and giant skeletons sometimes raise their shields: the blow glances off for a third.
-        if (!attacking && !guarding && transform.localScale.y > 1.3f && Random.value < 0.18f && animator != null)
+        if (!attacking && !guarding && transform.localScale.y > 0.95f && Random.value < 0.18f && animator != null)
         {
             guarding = true;
             animator.SetBool("Protect", true);

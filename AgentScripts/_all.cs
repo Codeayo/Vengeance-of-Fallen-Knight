@@ -816,7 +816,10 @@ public static class BuildHud
             "VENGEANCE OF THE FALLEN KNIGHT", 92, Color.white, TextAlignmentOptions.Bottom, UIKit.TitleMat, FontStyles.Bold, 14f);
         main.enableVertexGradient = true;
         main.colorGradient = new VertexGradient(new Color(1f, 0.93f, 0.72f), new Color(1f, 0.93f, 0.72f), new Color(0.86f, 0.5f, 0.18f), new Color(0.86f, 0.5f, 0.18f));
-        main.textWrappingMode = TextWrappingModes.Normal;
+        main.textWrappingMode = TextWrappingModes.NoWrap;
+        main.enableAutoSizing = true;
+        main.fontSizeMax = 92;
+        main.fontSizeMin = 44;
         var line = UIKit.Rect("Rule", title, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -26), new Vector2(820, 5));
         UIKit.Img(line, UIKit.Gen("HBand"), new Color(1f, 0.72f, 0.35f, 0.9f));
         var sub = UIKit.Text(UIKit.Rect("Sub", title, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 1), new Vector2(0, -44), new Vector2(0, 110)),
@@ -1345,6 +1348,7 @@ public static class LevelKit
     {
         var p = GameObject.FindGameObjectWithTag("Player");
         p.layer = LayerMask.NameToLayer("Player");
+        p.transform.localScale = new Vector3(0.95f, 1.05f, 1f); // same knight size in every chapter
         var rb = p.GetComponent<Rigidbody2D>();
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
@@ -1625,6 +1629,9 @@ public static class LevelKit
     }
 
     // ------------------------------------------------------------------ enemies
+    public const float SkeletonScale = 0.88f, EliteScale = 1.0f, GiantScale = 1.75f;
+    public static readonly Vector2 SkeletonBox = new Vector2(1.5f, 3.5f);
+
     public enum Kind { Skeleton, EliteSkeleton, GiantSkeleton, Axe, Ninja, EliteNinja, NinjaMaster }
 
     static GameObject Prefab(Kind k)
@@ -1657,12 +1664,15 @@ public static class LevelKit
 
         if (kind == Kind.Skeleton || kind == Kind.EliteSkeleton || kind == Kind.GiantSkeleton)
         {
-            Vector2 scale = kind == Kind.Skeleton ? new Vector2(1.15f, 1.2f) : kind == Kind.EliteSkeleton ? new Vector2(1.32f, 1.4f) : new Vector2(1.7f, 1.8f);
-            go.transform.localScale = new Vector3(scale.x, scale.y, 1);
+            // Sprite pivots sit at the feet: the transform is on the ground and the body box rises from it.
+            // Sizes relative to the knight: regular ~1x, elite ~1.15x, giant bosses ~2x.
+            float s = kind == Kind.Skeleton ? SkeletonScale : kind == Kind.EliteSkeleton ? EliteScale : GiantScale;
+            Vector2 scale = new Vector2(s, s);
+            go.transform.localScale = new Vector3(s, s, 1);
             var box = go.GetComponent<BoxCollider2D>();
-            box.size = new Vector2(1.1f, 3.8f); box.offset = new Vector2(0.4f, -0.05f);
+            box.size = SkeletonBox; box.offset = new Vector2(0f, SkeletonBox.y * 0.5f);
             var gc = go.transform.Find("GroundCheck");
-            if (gc != null) gc.localPosition = new Vector3(1.0f, -box.size.y * 0.5f + box.offset.y, 0);
+            if (gc != null) gc.localPosition = new Vector3(1.2f, 0.1f, 0);
             var ai = go.GetComponent<PatrolSkeletonAI>();
             var so = new SerializedObject(ai);
             so.FindProperty("maxHealth").intValue = hp > 0 ? hp : kind == Kind.Skeleton ? 50 : kind == Kind.EliteSkeleton ? 95 : 220;
@@ -1678,7 +1688,9 @@ public static class LevelKit
             ai.groundCheckDistance = 2.5f;
             if (go.GetComponent<FlipColliderSync>() == null) go.AddComponent<FlipColliderSync>();
             float gy = SurfaceY(x);
-            go.transform.position = new Vector3(x, gy + box.size.y * scale.y * 0.5f - box.offset.y * scale.y + 0.05f, 0);
+            go.transform.position = new Vector3(x, gy + 0.02f, 0);
+            var df = go.GetComponent<DamageFlash>();
+            if (df != null) SetF(df, "numberHeight", box.size.y * s * 1.1f);
             go.GetComponent<SpriteRenderer>().flipX = faceLeft;
             Record(go, box, ai, gc);
         }
@@ -2072,7 +2084,10 @@ public static class BuildLevel
 
     static void SetupEnemies(Transform root)
     {
-        var parentGo = GameObject.Find("Ememy") ?? GameObject.Find("Enemies");
+        // The scene's own enemy group is a root object; LevelKit also has an "Enemies" container, so search roots only.
+        GameObject parentGo = null;
+        foreach (var r in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+            if (r.name == "Ememy" || r.name == "Enemies") { parentGo = r; break; }
         var parent = parentGo.transform;
         parent.name = "Enemies";
         foreach (string n in new[] { "Crypt Guard (West)", "Crypt Guard (East)", "The Gravewarden" })
@@ -2142,20 +2157,21 @@ public static class BuildLevel
     static void ConfigureSkeleton(GameObject s, string name, float x, Vector2 scale, int hp, int dmg, float attackRange, float chaseRange)
     {
         s.name = name;
-        s.transform.localScale = new Vector3(scale.x, scale.y, 1f);
+        // Pivots are at the feet (see FixSkeletonSheets): transform on the ground, box rises from it.
+        float k = scale.y > 1.5f ? LevelKit.GiantScale : LevelKit.SkeletonScale;
+        scale = new Vector2(k, k);
+        s.transform.localScale = new Vector3(k, k, 1f);
         s.layer = LayerMask.NameToLayer("Enemy");
         var box = s.GetComponent<BoxCollider2D>();
-        // Fit to the skeleton's body (sprite has a wide shield / spear margin).
-        box.size = new Vector2(1.1f, 3.8f);
-        box.offset = new Vector2(0.4f, -0.05f);
+        box.size = LevelKit.SkeletonBox;
+        box.offset = new Vector2(0f, LevelKit.SkeletonBox.y * 0.5f);
         var sr = s.GetComponent<SpriteRenderer>();
         sr.sortingLayerName = "player";
         sr.sortingOrder = -1;
-        float halfH = box.size.y * scale.y * 0.5f;
         float gy = GroundY(x);
-        s.transform.position = new Vector3(x, gy + halfH - box.offset.y * scale.y + 0.02f, 0);
+        s.transform.position = new Vector3(x, gy + 0.02f, 0);
         var gc = s.transform.Find("GroundCheck");
-        if (gc != null) gc.localPosition = new Vector3(1.0f, -box.size.y * 0.5f + box.offset.y, 0);
+        if (gc != null) gc.localPosition = new Vector3(1.2f, 0.1f, 0);
 
         var ai = s.GetComponent<PatrolSkeletonAI>();
         var so = new SerializedObject(ai);
@@ -2172,7 +2188,7 @@ public static class BuildLevel
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
         if (s.GetComponent<DamageFlash>() == null) s.AddComponent<DamageFlash>();
-        SetF(s.GetComponent<DamageFlash>(), "numberHeight", box.size.y * scale.y * 0.6f);
+        SetF(s.GetComponent<DamageFlash>(), "numberHeight", box.size.y * scale.y * 1.1f);
         if (s.GetComponent<FlipColliderSync>() == null) s.AddComponent<FlipColliderSync>();
 
         // Prefab instances: direct field edits must be recorded as overrides or they revert on save.
