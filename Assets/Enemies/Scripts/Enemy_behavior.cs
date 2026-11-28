@@ -90,7 +90,7 @@ public class Enemy_behaviour : MonoBehaviour
 
     void Update()
     {
-        if (isDead)
+        if (isDead || Cinematic.IsPlaying)
             return;
 
         if (target == null)
@@ -139,6 +139,11 @@ public class Enemy_behaviour : MonoBehaviour
     {
         if (trig.CompareTag("Player"))
         {
+            if (target == null && !isDead)
+            {
+                EnemyVoice.Of(gameObject)?.Alert();
+                if (HasAnimationParameter("Alert", AnimatorControllerParameterType.Trigger)) anim.SetTrigger("Alert");
+            }
             target = trig.gameObject;
             inRange = true;
         }
@@ -207,6 +212,7 @@ public class Enemy_behaviour : MonoBehaviour
 
         CancelInvoke(nameof(LandHit));
         Invoke(nameof(LandHit), 0.3f);
+        EnemyVoice.Of(gameObject)?.Swing();
     }
 
     // The axe lands after a short wind-up, and only if the knight is still in reach.
@@ -218,7 +224,10 @@ public class Enemy_behaviour : MonoBehaviour
             return;
         Player playerHit = target.GetComponentInParent<Player>();
         if (playerHit != null)
-            playerHit.TakeDamage(attackDamage);
+        {
+            playerHit.TakeDamageFrom(attackDamage, transform.position);
+            EnemyVoice.Of(gameObject)?.Impact();
+        }
     }
 
     void StopAttack()
@@ -248,6 +257,7 @@ public class Enemy_behaviour : MonoBehaviour
             return;
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
+        if (currentHealth > 0) EnemyVoice.Of(gameObject)?.Hurt();
         if (HasAnimationParameter("Hurt", AnimatorControllerParameterType.Trigger))
             anim.SetTrigger("Hurt");
 
@@ -272,6 +282,8 @@ public class Enemy_behaviour : MonoBehaviour
 
         foreach (Collider2D collider in GetComponentsInChildren<Collider2D>())
             collider.enabled = false;
+        // Keep the corpse on the ground while the death animation plays.
+        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.bodyType = RigidbodyType2D.Kinematic; }
 
         Destroy(gameObject, 2f);
     }

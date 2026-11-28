@@ -32,6 +32,25 @@ public class EnemyCore : MonoBehaviour
     public bool IsBoss => isBoss;
     public bool IsDead => reported;
 
+    private void Awake()
+    {
+        var voice = GetComponent<EnemyVoice>();
+        if (voice == null) voice = gameObject.AddComponent<EnemyVoice>();
+        if (isBoss) voice.SetBossRoar(RoarFor(displayName));
+    }
+
+    /// <summary>Each boss has its own voice.</summary>
+    public static string RoarFor(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "roar_gravewarden";
+        if (name.Contains("Kage")) return "roar_kage";
+        if (name.Contains("Colossus")) return "roar_colossus";
+        if (name.Contains("Frost")) return "roar_frost";
+        if (name.Contains("Dravek")) return "roar_dravek";
+        if (name.Contains("Malvric")) return "roar_malvric";
+        return "roar_gravewarden";
+    }
+
     public void Configure(string name, int xp, int coinsLow, int coinsHigh, bool boss, params Loot[] drops)
     {
         displayName = name;
@@ -51,6 +70,7 @@ public class EnemyCore : MonoBehaviour
         if (core == null || core.reported)
             return;
         core.reported = true;
+        EnemyVoice.Of(enemy)?.Death();
         core.GrantRewards();
         Killed?.Invoke(core);
     }

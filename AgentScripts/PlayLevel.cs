@@ -28,7 +28,7 @@ public static class PlayLevel
         var f = typeof(Player).GetField("attackPointFacingRightPosition", BindingFlags.NonPublic | BindingFlags.Instance);
         Vector3 b = (Vector3)f.GetValue(p);
         p.attackPoint.localPosition = new Vector3(Mathf.Abs(b.x) * (p.GetComponent<SpriteRenderer>().flipX ? -1 : 1), b.y, b.z);
-        var m = typeof(Player).GetMethod("DoDamage", BindingFlags.NonPublic | BindingFlags.Instance);
+        var m = typeof(Player).GetMethod("DoDamage", BindingFlags.NonPublic | BindingFlags.Instance, null, System.Type.EmptyTypes, null);
         p.StartCoroutine((IEnumerator)m.Invoke(p, null));
     }
 
@@ -36,7 +36,9 @@ public static class PlayLevel
     {
         var sb = new StringBuilder();
         string scene = SceneManager.GetActiveScene().name;
-        await W(3f);
+        await W(1.5f);
+        while (Cinematic.IsPlaying) await W(0.2f); // chapter intro
+        await W(0.5f);
         var p = P;
         var col = p.GetComponent<Collider2D>();
         var g = Physics2D.Raycast(new Vector2(col.bounds.center.x, col.bounds.max.y), Vector2.down, 20f, LayerMask.GetMask("Ground"));
@@ -68,9 +70,9 @@ public static class PlayLevel
             string ename = enemy.DisplayName;
             Teleport(enemy.transform.position + Vector3.left * 4.5f, 0f);
             int hp = p.CurrentHealth; int xpBefore = PlayerProgress.Xp + PlayerProgress.Level * 10000;
-            await W(4f);
+            await W(6f);
             sb.Append(R(p.CurrentHealth < hp, $"{ename} engages and hits the knight ({hp} -> {p.CurrentHealth})"));
-            for (int i = 0; i < 25 && enemy != null && !enemy.IsDead; i++) { Swing(enemy.transform); p.TryHeal(999); await W(0.55f); }
+            for (int i = 0; i < 40 && enemy != null && !enemy.IsDead; i++) { if (Mathf.Abs(enemy.transform.position.x - p.transform.position.x) > 2.6f) { Teleport(enemy.transform.position + Vector3.left * 2.2f, 0f); await W(0.15f); } Swing(enemy.transform); p.TryHeal(999); await W(0.55f); }
             await W(0.5f);
             sb.Append(R(enemy == null || enemy.IsDead, $"{ename} dies to sword attacks"));
             sb.Append(R(PlayerProgress.Xp + PlayerProgress.Level * 10000 > xpBefore, $"experience gained (LV {PlayerProgress.Level}, {PlayerProgress.Xp} xp)"));
@@ -88,7 +90,9 @@ public static class PlayLevel
         if (enc != null)
         {
             p.TryHeal(999);
-            Teleport(enc.transform.position, 0.2f); await W(1.5f);
+            Teleport(enc.transform.position, 0.2f); await W(1.2f);
+            while (Cinematic.IsPlaying) await W(0.2f); // boss introduction
+            await W(0.8f);
             var bg = typeof(GameHUD).GetField("bossGroup", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(GameHUD.Instance) as CanvasGroup;
             sb.Append(R(bg.alpha > 0.5f, "boss bar appears"));
             var req = (GameObject[])typeof(LevelExit).GetField("requiredDefeated", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(exit);

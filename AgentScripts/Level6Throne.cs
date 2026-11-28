@@ -34,9 +34,10 @@ public static class Level6Throne
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 30f);
+        K.Camera(8.5f, 30f, new Color(0.06f, 0.02f, 0.03f));
 
-        K.Banner(3.8f, "The Usurper's Throne", "Here it ends");
+        K.Chapter("CHAPTER VI", "The Usurper's Throne", "Here it ends.",
+            "The usurper waits upon your throne, Aldric.", "He wears your king's crown and your name for a traitor. End it.");
         K.Note(16f, "Your Own Portrait",
             "Your face, slashed through with a blade. Beneath it someone has written:\n\n\"The traitor captain.\"\n\n" +
             "Malvric has told the realm you betrayed the king. Only you know the truth.", C5.P(1), 1.1f);
@@ -59,12 +60,25 @@ public static class Level6Throne
         var pp = so.FindProperty("summonPoints"); pp.arraySize = 2; pp.GetArrayElementAtIndex(0).objectReferenceValue = pts[0]; pp.GetArrayElementAtIndex(1).objectReferenceValue = pts[1];
         so.ApplyModifiedPropertiesWithoutUndo();
         K.BossArena(114f, ai, "Lord Malvric, the Usurper", "\"Sir Aldric. I buried you myself.\"",
-            "The Usurper Is Dead", "Vengeance is done. The crown is free.");
+            "The Usurper Is Dead", "Vengeance is done. The crown is free.", "LORD MALVRIC", "THE USURPER KING", "Sir Aldric. I buried you myself.");
+
+        // Epilogue after Malvric falls.
+        var epi = K.Child(K.Content, "Epilogue").gameObject.AddComponent<EpilogueCinematic>();
+        var throneMark = K.Child(K.Content, "Throne", new Vector3(183f, K.FloorY(183f), 0));
+        K.Set(epi, "finalBoss", malvric);
+        K.Set(epi, "throne", throneMark);
 
         K.Pickup("crimson_flask", 50f);
         K.Pickup("verdant_tonic", 100f, 1.2f);
         K.Pickup("prism_relic", 69f, 1.4f, 1, "relic_throne");
         K.Coins(4, 30, 1.3f, 6);
+
+        // The throne room: torches between the pillars, braziers flanking the dais, red carpet runner.
+        for (float x = 8f; x < 176f; x += 16f) K.Torch(x, 3.6f, 1.05f);
+        K.Torch(177f, 1.4f, 1.5f); K.Torch(189f, 1.4f, 1.5f);
+        foreach (float x in new[] { 30f, 78f, 150f }) K.Prop(C5.P(10), x, 1.1f, "Backtiles", 7);
+        foreach (float x in new[] { 22f, 96f }) K.Prop(C5.P(5), x, 1.1f, "Backtiles", 6);
+        K.Tiled(K.Decor, "Royal Carpet", C5.C(15), new Vector3(150f, K.FloorY(150f) + 0.08f, 0), new Vector2(60f, 0.5f), "Ground", 6, new Color(0.9f, 0.25f, 0.3f));
 
         K.Atmosphere(new Color(1f, 0.75f, 0.72f), 0.68f, new Color(0.7f, 0.4f, 0.45f), 0.08f,
             new K.VolumeLook("ThronePost", 0.45f, 1f, 16f, -6f, new Color(1f, 0.92f, 0.9f)),

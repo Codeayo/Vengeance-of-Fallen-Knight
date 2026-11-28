@@ -62,6 +62,11 @@ public class YellowNinja : MonoBehaviour, IBossHealth
     void Update()
     {
         if (isDead) return;
+        if (Cinematic.IsPlaying)
+        {
+            if (rb != null) rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return;
+        }
         if (player == null || (player.GetComponent<Player>() != null && player.GetComponent<Player>().IsDead))
         {
             PatrolMovement();
@@ -113,9 +118,25 @@ public class YellowNinja : MonoBehaviour, IBossHealth
         }
     }
 
+    bool alerted;
+    Vector3 lastPos;
+
+    void LateUpdate()
+    {
+        if (animator == null) return;
+        float speed = Mathf.Abs(transform.position.x - lastPos.x) / Mathf.Max(0.0001f, Time.deltaTime);
+        lastPos = transform.position;
+        animator.SetFloat("Speed", isDead || isAttacking ? 0f : speed);
+    }
+
     // ---------------- CHASE ----------------
     void ChasePlayer()
     {
+        if (!alerted)
+        {
+            alerted = true;
+            EnemyVoice.Of(gameObject)?.Alert();
+        }
         if (animator != null)
             animator.SetBool("Attack", false);
 
@@ -162,6 +183,7 @@ public class YellowNinja : MonoBehaviour, IBossHealth
             rb.linearVelocity = Vector2.zero;
 
         Invoke(nameof(DoDamage), 0.25f);
+        EnemyVoice.Of(gameObject)?.Swing();
         Invoke(nameof(EndAttack), 0.6f);
     }
 
@@ -186,7 +208,10 @@ public class YellowNinja : MonoBehaviour, IBossHealth
         {
             Player playerHit = hit.GetComponentInParent<Player>();
             if (playerHit != null)
-                playerHit.TakeDamage(attackDamage);
+            {
+                playerHit.TakeDamageFrom(attackDamage, transform.position);
+                EnemyVoice.Of(gameObject)?.Impact();
+            }
         }
     }
 
@@ -205,6 +230,7 @@ public class YellowNinja : MonoBehaviour, IBossHealth
         if (amount <= 0) return;
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
+        if (currentHealth > 0) EnemyVoice.Of(gameObject)?.Hurt();
         if (animator != null)
             animator.SetTrigger("Hurt");
 
@@ -229,6 +255,8 @@ public class YellowNinja : MonoBehaviour, IBossHealth
 
         foreach (Collider2D c in GetComponents<Collider2D>())
             c.enabled = false;
+        // Keep the corpse on the ground while the death animation plays.
+        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.bodyType = RigidbodyType2D.Kinematic; }
 
         Destroy(gameObject, 2f);
     }

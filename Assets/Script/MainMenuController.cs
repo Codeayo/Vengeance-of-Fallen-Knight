@@ -36,6 +36,10 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Button levelBackButton;
 
     [Header("Settings")]
+    [SerializeField] private Slider masterSlider;
+    [SerializeField] private Slider ambientSlider;
+    [SerializeField] private TMP_Text masterValue;
+    [SerializeField] private TMP_Text ambientValue;
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider sfxSlider;
     [SerializeField] private Toggle fullscreenToggle;
@@ -66,7 +70,7 @@ public class MainMenuController : MonoBehaviour
         Bind(continueButton, ContinueGame);
         Bind(newGameButton, RequestNewGame);
         Bind(levelSelectButton, () => Show(levelSelectPanel, FirstUnlockedLevelButton()));
-        Bind(settingsButton, () => Show(settingsPanel, musicSlider != null ? musicSlider.gameObject : null));
+        Bind(settingsButton, () => Show(settingsPanel, masterSlider != null ? masterSlider.gameObject : musicSlider?.gameObject));
         Bind(aboutButton, () => Show(aboutPanel, aboutBackButton != null ? aboutBackButton.gameObject : null));
         Bind(exitButton, QuitGame);
         Bind(levelBackButton, Back, true);
@@ -339,7 +343,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (panel == mainPanel) return DefaultMainSelection();
         if (panel == levelSelectPanel) return FirstUnlockedLevelButton();
-        if (panel == settingsPanel) return musicSlider != null ? musicSlider.gameObject : null;
+        if (panel == settingsPanel) return masterSlider != null ? masterSlider.gameObject : musicSlider?.gameObject;
         if (panel == aboutPanel) return aboutBackButton != null ? aboutBackButton.gameObject : null;
         if (panel == confirmPanel) return confirmNoButton != null ? confirmNoButton.gameObject : null;
         return null;
@@ -356,6 +360,18 @@ public class MainMenuController : MonoBehaviour
     // ---------------- SETTINGS ----------------
     private void SetupSettings()
     {
+        if (masterSlider != null)
+        {
+            masterSlider.SetValueWithoutNotify(GameSettings.MasterVolume);
+            masterSlider.onValueChanged.AddListener(v => { GameSettings.MasterVolume = v; UpdateSettingLabels(); });
+        }
+
+        if (ambientSlider != null)
+        {
+            ambientSlider.SetValueWithoutNotify(GameSettings.AmbientVolume);
+            ambientSlider.onValueChanged.AddListener(v => { GameSettings.AmbientVolume = v; UpdateSettingLabels(); });
+        }
+
         if (musicSlider != null)
         {
             musicSlider.SetValueWithoutNotify(GameSettings.MusicVolume);
@@ -397,6 +413,8 @@ public class MainMenuController : MonoBehaviour
 
     private void UpdateSettingLabels()
     {
+        if (masterValue != null) masterValue.text = $"{Mathf.RoundToInt(GameSettings.MasterVolume * 100f)}%";
+        if (ambientValue != null) ambientValue.text = $"{Mathf.RoundToInt(GameSettings.AmbientVolume * 100f)}%";
         if (musicValue != null) musicValue.text = $"{Mathf.RoundToInt(GameSettings.MusicVolume * 100f)}%";
         if (sfxValue != null) sfxValue.text = $"{Mathf.RoundToInt(GameSettings.SfxVolume * 100f)}%";
         if (fullscreenValue != null) fullscreenValue.text = GameSettings.Fullscreen ? "On" : "Off";

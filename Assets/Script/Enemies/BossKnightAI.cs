@@ -55,6 +55,7 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
     {
         if (dead || player == null)
             return;
+        if (Cinematic.IsPlaying) { Idle(); return; }
 
         float dx = player.position.x - transform.position.x;
         float dist = Mathf.Abs(dx);
@@ -128,6 +129,7 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
         {
             anim.SetInteger("CombpStep", i);
             anim.SetTrigger("Attack");
+            MusicManager.Instance?.PlayAt(i == 2 ? "swing_heavy" : "swing", transform.position, 0.8f);
             // Telegraph: a brief red flash before each blow.
             if (sr != null) sr.color = Color.Lerp(baseTint, Color.red, 0.6f);
             yield return new WaitForSeconds(phase >= 2 ? 0.28f : 0.4f);
@@ -136,7 +138,7 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
             float dx = player.position.x - transform.position.x;
             bool facing = (dx < 0f) == (sr != null && sr.flipX);
             if (facing && Mathf.Abs(dx) <= strikeReach * 1.1f && Mathf.Abs(player.position.y - transform.position.y) < 2.5f)
-                playerComp?.TakeDamage(strikeDamage + (phase - 1) * 4);
+                { playerComp?.TakeDamageFrom(strikeDamage + (phase - 1) * 4, transform.position); MusicManager.Instance?.PlayAt("hit", player.position, 0.9f); }
             yield return new WaitForSeconds(0.22f);
         }
 
@@ -161,6 +163,7 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
     {
         busy = true;
         anim.SetTrigger("Roll");
+        MusicManager.Instance?.PlayAt("roll", transform.position, 0.7f);
         float t = 0f;
         while (t < 0.4f && !dead)
         {
@@ -195,7 +198,7 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
             if (!hit && Mathf.Abs(player.position.x - transform.position.x) < strikeReach && Mathf.Abs(player.position.y - transform.position.y) < 2.5f)
             {
                 hit = true;
-                playerComp?.TakeDamage(strikeDamage + 6);
+                playerComp?.TakeDamageFrom(strikeDamage + 6, transform.position);
             }
             yield return null;
         }
@@ -215,7 +218,10 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
         int applied = blocking ? Mathf.Max(1, amount / 4) : amount;
         health = Mathf.Max(0, health - applied);
         if (blocking)
+        {
             GameHUD.Instance?.ShowToast("Malvric parries your blow");
+            MusicManager.Instance?.PlayAt("clank", transform.position, 0.9f);
+        }
         else
             anim.SetTrigger("Hurt");
 
@@ -223,7 +229,10 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
         {
             phase = 2;
             baseTint = new Color(0.65f, 0.25f, 0.3f);
-            GameHUD.Instance?.ShowAreaTitle("\"You were always the lesser blade, Aldric.\"", "Malvric's fury grows");
+            EnemyVoice.Of(gameObject)?.Roar();
+            ScreenShake.Shake(0.35f);
+            if (Cinematic.Instance != null) StartCoroutine(PhaseLine());
+            else GameHUD.Instance?.ShowAreaTitle("\"You were always the lesser blade, Aldric.\"", "Malvric's fury grows");
         }
 
         if (phase == 2 && HealthNormalized <= 0.3f)
@@ -240,9 +249,17 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
             Die();
     }
 
+    private IEnumerator PhaseLine()
+    {
+        // A line delivered mid-fight, without stopping play.
+        yield return Cinematic.Say("Lord Malvric", "You were always the lesser blade, Aldric.", 1.4f);
+    }
+
     private IEnumerator Summon()
     {
-        GameHUD.Instance?.ShowToast("\"Rise, my guard! Rise and serve your king!\"");
+        EnemyVoice.Of(gameObject)?.Roar();
+        MusicManager.Instance?.PlayAt("thunder", transform.position, 0.8f, 0.02f, 0f, 40f);
+        StartCoroutine(Cinematic.Say("Lord Malvric", "Rise, my guard! Rise and serve your king!", 1.2f));
         if (summonPrefabs == null || summonPoints == null)
             yield break;
         for (int i = 0; i < summonPoints.Length && i < summonPrefabs.Length; i++)
@@ -258,6 +275,11 @@ public class BossKnightAI : MonoBehaviour, IBossHealth
     {
         dead = true;
         StopAllCoroutines();
+        if (Cinematic.Instance != null && !Cinematic.IsPlaying)
+        {
+            var sub = typeof(Cinematic).GetField("subtitleGroup", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (sub.GetValue(Cinematic.Instance) is CanvasGroup g) g.alpha = 0f;
+        }
         rb.linearVelocity = Vector2.zero;
         anim.SetBool("IsDead", true);
         anim.SetTrigger("Death");

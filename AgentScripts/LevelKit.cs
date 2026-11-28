@@ -275,7 +275,7 @@ public static class LevelKit
     }
 
     // ------------------------------------------------------------------ camera, background, light
-    public static void Camera(float lens = 8.5f, float topY = 30f)
+    public static void Camera(float lens = 8.5f, float topY = 30f, Color? sky = null)
     {
         var cm = Object.FindFirstObjectByType<CinemachineCamera>();
         var lensSettings = cm.Lens;
@@ -318,7 +318,7 @@ public static class LevelKit
         var cam = UnityEngine.Camera.main;
         cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
         cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = new Color(0.04f, 0.04f, 0.07f);
+        cam.backgroundColor = sky ?? new Color(0.04f, 0.04f, 0.07f);
     }
 
     /// <summary>Camera-following background layer tiled across the level.</summary>
@@ -395,6 +395,7 @@ public static class LevelKit
     {
         var p = GameObject.FindGameObjectWithTag("Player");
         p.layer = LayerMask.NameToLayer("Player");
+        p.transform.localScale = new Vector3(0.95f, 1.05f, 1f); // same knight size in every chapter
         var rb = p.GetComponent<Rigidbody2D>();
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
@@ -588,7 +589,8 @@ public static class LevelKit
         return exit;
     }
 
-    public static void BossArena(float x, MonoBehaviour boss, string name, string arrival, string defeatTitle, string defeatSub)
+    public static void BossArena(float x, MonoBehaviour boss, string name, string arrival, string defeatTitle, string defeatSub,
+        string cardName = "", string cardTitle = "", string dialogue = "")
     {
         var go = Child(Content, "Boss Trigger: " + name, new Vector3(x, SurfaceY(x) + 4f, 0)).gameObject;
         go.layer = LayerMask.NameToLayer("Ignore Raycast");
@@ -600,10 +602,83 @@ public static class LevelKit
         so.FindProperty("arrivalMessage").stringValue = arrival;
         so.FindProperty("defeatTitle").stringValue = defeatTitle;
         so.FindProperty("defeatSubtitle").stringValue = defeatSub;
+        so.FindProperty("cardName").stringValue = cardName;
+        so.FindProperty("cardTitle").stringValue = cardTitle;
+        so.FindProperty("dialogue").stringValue = dialogue;
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
+    /// <summary>Chapter card and camera sweep when the level starts at its beginning.</summary>
+    public static void Chapter(string label, string title, string description, params string[] ghostLines)
+    {
+        var p = GameObject.FindGameObjectWithTag("Player");
+        var go = Child(Content, "Chapter Intro", p.transform.position).gameObject;
+        go.AddComponent<ChapterIntro>().Configure(label, title, description, ghostLines);
+    }
+
+    /// <summary>Wall torch / brazier: flickering flame, embers and warm light.</summary>
+    public static void Torch(float x, float yAboveGround, float scale = 1f)
+    {
+        float gy = FloorY(x);
+        var root = Child(Decor, "Torch", new Vector3(x, gy + yAboveGround, 0));
+        Sprite(root, "Sconce", UIKit.Gen("Diamond"), root.position + Vector3.down * 0.25f * scale, 0.5f * scale, "Backtiles", 20, new Color(0.3f, 0.25f, 0.22f)).transform.localScale = new Vector3(0.45f, 0.3f, 1) * scale;
+        Sprite(root, "Halo", UIKit.Gen("SoftCircle"), root.position, 2.2f * scale, "Backtiles", 19, new Color(1f, 0.55f, 0.2f, 0.45f));
+        var ps = UIKit.Particles("Flame", root, root.position, UIKit.Gen("SoftCircle"), "Backtiles", 21);
+        var main = ps.main;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.7f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.18f * scale, 0.42f * scale);
+        main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.45f, 0.1f, 0.95f), new Color(1f, 0.85f, 0.35f, 0.95f));
+        var em = ps.emission; em.rateOverTime = 24f;
+        var sh = ps.shape; sh.shapeType = ParticleSystemShapeType.Box; sh.scale = new Vector3(0.2f * scale, 0.05f, 0.1f);
+        var vel = ps.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.World;
+        vel.x = new ParticleSystem.MinMaxCurve(-0.08f, 0.08f); vel.y = new ParticleSystem.MinMaxCurve(0.9f, 1.6f); vel.z = new ParticleSystem.MinMaxCurve(0f, 0f);
+        var sz = ps.sizeOverLifetime; sz.enabled = true; sz.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0, 1, 1, 0.1f));
+        var l = UIKit.Light("Torch Light", root, Light2D.LightType.Point, root.position + Vector3.up * 0.3f, new Color(1f, 0.6f, 0.3f), 1.1f, 5.5f * scale, 0.4f);
+        l.gameObject.AddComponent<LightFlicker>();
+    }
+
+    /// <summary>A column of rising smoke (burned camp, braziers).</summary>
+    public static void Smoke(float x, float yAboveGround, float width = 1.2f)
+    {
+        float gy = FloorY(x);
+        var ps = UIKit.Particles("Smoke", Fx, new Vector3(x, gy + yAboveGround, 0), UIKit.Gen("Mist"), "Backtiles", 15);
+        var main = ps.main;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 6f);
+        main.startSize = new ParticleSystem.MinMaxCurve(1.2f, 2.4f);
+        main.startColor = new ParticleSystem.MinMaxGradient(new Color(0.25f, 0.22f, 0.22f, 0.35f), new Color(0.4f, 0.36f, 0.34f, 0.25f));
+        main.startRotation = new ParticleSystem.MinMaxCurve(-1f, 1f);
+        var em = ps.emission; em.rateOverTime = 3.5f;
+        var sh = ps.shape; sh.shapeType = ParticleSystemShapeType.Box; sh.scale = new Vector3(width, 0.2f, 0.1f);
+        var vel = ps.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.World;
+        vel.x = new ParticleSystem.MinMaxCurve(0.2f, 0.6f); vel.y = new ParticleSystem.MinMaxCurve(0.8f, 1.4f); vel.z = new ParticleSystem.MinMaxCurve(0f, 0f);
+        var sz = ps.sizeOverLifetime; sz.enabled = true; sz.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0, 0.6f, 1, 2.2f));
+        var col = ps.colorOverLifetime; col.enabled = true;
+        var g = new Gradient();
+        g.SetKeys(new[] { new GradientColorKey(Color.white, 0), new GradientColorKey(Color.white, 1) }, new[] { new GradientAlphaKey(0, 0), new GradientAlphaKey(1, 0.2f), new GradientAlphaKey(0, 1) });
+        col.color = g;
+    }
+
+    /// <summary>A layer of distant silhouettes (sprites tinted toward the sky colour) following the camera.</summary>
+    public static void Skyline(Sprite[] sprites, float spacing, float y, float scale, float follow, string layer, int order, Color tint)
+    {
+        var root = Child(Decor, "Skyline " + order);
+        root.position = new Vector3(MinX, 0, 0);
+        int i = 0;
+        for (float x = MinX - 20f; x < MaxX * (1f - follow) + MinX + 60f; x += spacing, i++)
+        {
+            var sp = sprites[i % sprites.Length];
+            var sr = Sprite(root, "Silhouette", sp, new Vector3(x + (i % 3) * spacing * 0.2f, y, 0), scale * (0.85f + (i % 4) * 0.08f), layer, order, tint);
+            sr.flipX = i % 2 == 1;
+        }
+        var pf = root.gameObject.AddComponent<ParallaxFollow>();
+        SetF(pf, "followX", follow);
+        SetF(pf, "followY", Mathf.Clamp01(follow + 0.05f));
+    }
+
     // ------------------------------------------------------------------ enemies
+    public const float SkeletonScale = 0.88f, EliteScale = 1.0f, GiantScale = 1.75f;
+    public static readonly Vector2 SkeletonBox = new Vector2(1.5f, 3.5f);
+
     public enum Kind { Skeleton, EliteSkeleton, GiantSkeleton, Axe, Ninja, EliteNinja, NinjaMaster }
 
     static GameObject Prefab(Kind k)
@@ -636,12 +711,15 @@ public static class LevelKit
 
         if (kind == Kind.Skeleton || kind == Kind.EliteSkeleton || kind == Kind.GiantSkeleton)
         {
-            Vector2 scale = kind == Kind.Skeleton ? new Vector2(1.15f, 1.2f) : kind == Kind.EliteSkeleton ? new Vector2(1.32f, 1.4f) : new Vector2(1.7f, 1.8f);
-            go.transform.localScale = new Vector3(scale.x, scale.y, 1);
+            // Sprite pivots sit at the feet: the transform is on the ground and the body box rises from it.
+            // Sizes relative to the knight: regular ~1x, elite ~1.15x, giant bosses ~2x.
+            float s = kind == Kind.Skeleton ? SkeletonScale : kind == Kind.EliteSkeleton ? EliteScale : GiantScale;
+            Vector2 scale = new Vector2(s, s);
+            go.transform.localScale = new Vector3(s, s, 1);
             var box = go.GetComponent<BoxCollider2D>();
-            box.size = new Vector2(1.1f, 3.8f); box.offset = new Vector2(0.4f, -0.05f);
+            box.size = SkeletonBox; box.offset = new Vector2(0f, SkeletonBox.y * 0.5f);
             var gc = go.transform.Find("GroundCheck");
-            if (gc != null) gc.localPosition = new Vector3(1.0f, -box.size.y * 0.5f + box.offset.y, 0);
+            if (gc != null) gc.localPosition = new Vector3(1.2f, 0.1f, 0);
             var ai = go.GetComponent<PatrolSkeletonAI>();
             var so = new SerializedObject(ai);
             so.FindProperty("maxHealth").intValue = hp > 0 ? hp : kind == Kind.Skeleton ? 50 : kind == Kind.EliteSkeleton ? 95 : 220;
@@ -657,7 +735,9 @@ public static class LevelKit
             ai.groundCheckDistance = 2.5f;
             if (go.GetComponent<FlipColliderSync>() == null) go.AddComponent<FlipColliderSync>();
             float gy = SurfaceY(x);
-            go.transform.position = new Vector3(x, gy + box.size.y * scale.y * 0.5f - box.offset.y * scale.y + 0.05f, 0);
+            go.transform.position = new Vector3(x, gy + 0.02f, 0);
+            var df = go.GetComponent<DamageFlash>();
+            if (df != null) SetF(df, "numberHeight", box.size.y * s * 1.1f);
             go.GetComponent<SpriteRenderer>().flipX = faceLeft;
             Record(go, box, ai, gc);
         }

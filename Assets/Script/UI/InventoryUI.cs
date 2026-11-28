@@ -88,7 +88,7 @@ public class InventoryUI : MonoBehaviour
             Select(current != null ? current.gameObject : slots[0].gameObject);
     }
 
-    private static bool CanOpen() => !PauseMenu.IsPaused && !ReadPanel.IsOpen && !ShrineMenu.IsOpen && !GameHUD.IsGameOverShowing && !SceneFader.IsLoading;
+    private static bool CanOpen() => !Cinematic.IsPlaying && !PauseMenu.IsPaused && !ReadPanel.IsOpen && !ShrineMenu.IsOpen && !GameHUD.IsGameOverShowing && !SceneFader.IsLoading;
 
     public void Open()
     {

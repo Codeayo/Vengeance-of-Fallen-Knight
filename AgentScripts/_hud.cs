@@ -663,21 +663,24 @@ public static class BuildHud
         var pauseRoot = UIKit.Stretch("Pause", ct);
         var pauseGroup = pauseRoot.gameObject.AddComponent<CanvasGroup>();
         UIKit.Img(pauseRoot, UIKit.Gen("WhitePixel"), new Color(0.01f, 0.01f, 0.03f, 0.72f), true);
-        var pp = UIKit.Panel("Panel", pauseRoot, new Vector2(820, 540), "Paused", out var _);
+        var pp = UIKit.Panel("Panel", pauseRoot, new Vector2(820, 640), "Paused", out var _);
         var resume = UIKit.MenuButton("Resume", pp, "Resume", new Vector2(130, -130), new Vector2(560, 60), 36);
-        var mLabel = UIKit.Text(UIKit.Rect("Music Label", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(150, -220), new Vector2(240, 50)),
-            "Music", 28, UIKit.Bone, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold | FontStyles.UpperCase, 4f);
-        var mSlider = UIKit.MakeSlider("Music Slider", pp, new Vector2(370, -220), new Vector2(260, 46), mLabel);
-        var mVal = UIKit.Text(UIKit.Rect("Music Value", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(650, -220), new Vector2(120, 50)),
-            "35%", 26, UIKit.Gold, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold);
-        var sLabel = UIKit.Text(UIKit.Rect("Effects Label", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(150, -290), new Vector2(240, 50)),
-            "Effects", 28, UIKit.Bone, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold | FontStyles.UpperCase, 4f);
-        var sSlider = UIKit.MakeSlider("Effects Slider", pp, new Vector2(370, -290), new Vector2(260, 46), sLabel);
-        var sVal = UIKit.Text(UIKit.Rect("Effects Value", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(650, -290), new Vector2(120, 50)),
-            "55%", 26, UIKit.Gold, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold);
-        var pMenu = UIKit.MenuButton("Main Menu", pp, "Main Menu", new Vector2(130, -380), new Vector2(560, 60), 36);
-        var pQuit = UIKit.MenuButton("Quit", pp, "Quit Game", new Vector2(130, -450), new Vector2(560, 60), 36);
-        UIKit.SetVerticalNav(new Selectable[] { resume, mSlider, sSlider, pMenu, pQuit });
+        (Slider, TMP_Text) Row(string name, float y)
+        {
+            var label = UIKit.Text(UIKit.Rect(name + " Label", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(150, y), new Vector2(240, 50)),
+                name, 26, UIKit.Bone, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold | FontStyles.UpperCase, 4f);
+            var slider = UIKit.MakeSlider(name + " Slider", pp, new Vector2(370, y), new Vector2(260, 44), label);
+            var val = UIKit.Text(UIKit.Rect(name + " Value", pp, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 0.5f), new Vector2(650, y), new Vector2(120, 50)),
+                "50%", 24, UIKit.Gold, TextAlignmentOptions.MidlineLeft, UIKit.BodyMat, FontStyles.Bold);
+            return (slider, val);
+        }
+        var (masterS, masterV) = Row("Master", -205);
+        var (mSlider, mVal) = Row("Music", -263);
+        var (sSlider, sVal) = Row("Effects", -321);
+        var (aSlider, aVal) = Row("Ambience", -379);
+        var pMenu = UIKit.MenuButton("Main Menu", pp, "Main Menu", new Vector2(130, -465), new Vector2(560, 60), 36);
+        var pQuit = UIKit.MenuButton("Quit", pp, "Quit Game", new Vector2(130, -535), new Vector2(560, 60), 36);
+        UIKit.SetVerticalNav(new Selectable[] { resume, masterS, mSlider, sSlider, aSlider, pMenu, pQuit });
         var pause = canvas.gameObject.AddComponent<PauseMenu>();
         var pso = new SerializedObject(pause);
         pso.FindProperty("panel").objectReferenceValue = pauseGroup;
@@ -686,6 +689,10 @@ public static class BuildHud
         pso.FindProperty("quitButton").objectReferenceValue = pQuit;
         pso.FindProperty("musicSlider").objectReferenceValue = mSlider;
         pso.FindProperty("sfxSlider").objectReferenceValue = sSlider;
+        pso.FindProperty("masterSlider").objectReferenceValue = masterS;
+        pso.FindProperty("ambientSlider").objectReferenceValue = aSlider;
+        pso.FindProperty("masterValue").objectReferenceValue = masterV;
+        pso.FindProperty("ambientValue").objectReferenceValue = aVal;
         pso.FindProperty("musicValue").objectReferenceValue = mVal;
         pso.FindProperty("sfxValue").objectReferenceValue = sVal;
         pso.ApplyModifiedPropertiesWithoutUndo();
@@ -771,6 +778,7 @@ public static class BuildHud
 
         Assign(hud, ("xpFill", xpFill), ("levelText", lvl), ("feedRoot", feed), ("feedTemplate", row.gameObject), ("promptGroup", promptGroup), ("promptText", promptText));
 
+        BuildCinematic(canvas);
         BuildReadPanel(canvas);
         BuildShrineMenu(canvas);
         BuildInventory(canvas);
@@ -778,6 +786,51 @@ public static class BuildHud
         ct.Find("Screen Fade").SetAsLastSibling();
         ct.Find("Game Over").SetAsLastSibling();
         ct.Find("Pause").SetAsLastSibling();
+        ct.Find("Cinematic").SetAsLastSibling();
+    }
+
+    static void BuildCinematic(Canvas canvas)
+    {
+        var root = UIKit.Stretch("Cinematic", canvas.transform);
+        var black = UIKit.Stretch("Black", root);
+        var blackGroup = black.gameObject.AddComponent<CanvasGroup>();
+        UIKit.Img(black, UIKit.Gen("WhitePixel"), new Color(0.01f, 0.01f, 0.02f, 1f));
+        var top = UIKit.Rect("Letterbox Top", root, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), Vector2.zero, new Vector2(0, 0));
+        UIKit.Img(top, UIKit.Gen("WhitePixel"), Color.black);
+        var bottom = UIKit.Rect("Letterbox Bottom", root, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0), Vector2.zero, new Vector2(0, 0));
+        UIKit.Img(bottom, UIKit.Gen("WhitePixel"), Color.black);
+
+        var title = UIKit.Rect("Title Card", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 60), new Vector2(1700, 300));
+        var titleGroup = title.gameObject.AddComponent<CanvasGroup>();
+        var main = UIKit.Text(UIKit.Rect("Main", title, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 0), new Vector2(0, -10), new Vector2(0, 150)),
+            "VENGEANCE OF THE FALLEN KNIGHT", 92, Color.white, TextAlignmentOptions.Bottom, UIKit.TitleMat, FontStyles.Bold, 14f);
+        main.enableVertexGradient = true;
+        main.colorGradient = new VertexGradient(new Color(1f, 0.93f, 0.72f), new Color(1f, 0.93f, 0.72f), new Color(0.86f, 0.5f, 0.18f), new Color(0.86f, 0.5f, 0.18f));
+        main.textWrappingMode = TextWrappingModes.NoWrap;
+        main.enableAutoSizing = true;
+        main.fontSizeMax = 92;
+        main.fontSizeMin = 44;
+        var line = UIKit.Rect("Rule", title, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -26), new Vector2(820, 5));
+        UIKit.Img(line, UIKit.Gen("HBand"), new Color(1f, 0.72f, 0.35f, 0.9f));
+        var sub = UIKit.Text(UIKit.Rect("Sub", title, new Vector2(0, 0.5f), new Vector2(1, 0.5f), new Vector2(0.5f, 1), new Vector2(0, -44), new Vector2(0, 110)),
+            "", 34, UIKit.Bone, TextAlignmentOptions.Top, UIKit.BodyMat, FontStyles.Italic, 3f);
+
+        var subt = UIKit.Rect("Subtitles", root, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 140), new Vector2(1500, 190));
+        var subtGroup = subt.gameObject.AddComponent<CanvasGroup>();
+        UIKit.Img(UIKit.Stretch("Band", subt), UIKit.Gen("HBand"), new Color(0, 0, 0, 0.7f));
+        var speaker = UIKit.Text(UIKit.Rect("Speaker", subt, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), new Vector2(0, -16), new Vector2(0, 44)),
+            "The Watcher", 30, new Color(0.65f, 0.9f, 1f), TextAlignmentOptions.Top, UIKit.BodyMat, FontStyles.Bold | FontStyles.SmallCaps, 6f);
+        var text = UIKit.Text(UIKit.Rect("Line", subt, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1), new Vector2(0, -62), new Vector2(-160, 120)),
+            "", 32, UIKit.Bone, TextAlignmentOptions.Top, UIKit.BodyMat, FontStyles.Italic);
+
+        var skip = UIKit.Rect("Skip Hint", root, new Vector2(1, 0), new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 30), new Vector2(600, 40));
+        var skipGroup = skip.gameObject.AddComponent<CanvasGroup>();
+        UIKit.Text(skip, "Hold <color=#E8C27A>Esc</color> / <color=#E8C27A>Enter</color> / <color=#E8C27A>Start</color> to skip", 22, UIKit.Ash, TextAlignmentOptions.BottomRight, UIKit.BodyMat);
+
+        foreach (var g in new[] { blackGroup, titleGroup, subtGroup, skipGroup }) { g.alpha = 0f; g.blocksRaycasts = false; g.interactable = false; }
+        var c = canvas.gameObject.AddComponent<Cinematic>();
+        Assign(c, ("topBar", top), ("bottomBar", bottom), ("titleGroup", titleGroup), ("titleMain", main), ("titleSub", sub),
+            ("subtitleGroup", subtGroup), ("speakerText", speaker), ("lineText", text), ("black", blackGroup), ("skipHint", skipGroup));
     }
 
     static CanvasGroup Overlay(Transform parent, string name)

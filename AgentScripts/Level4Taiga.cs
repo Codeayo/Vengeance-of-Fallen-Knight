@@ -45,9 +45,9 @@ public static class Level4Taiga
 
         K.Player(3f);
         K.Hud();
-        K.Camera(8.5f, 36f);
+        K.Camera(8.5f, 36f, new Color(0.55f, 0.66f, 0.78f));
 
-        K.Banner(3.8f, "The Frozen Taiga", "The last road to the castle");
+        K.Chapter("CHAPTER IV", "The Frozen Taiga", "A frozen mountain pass, the last road to the castle. The cold here kills as surely as a blade.");
         var note = K.SpriteAt("Assets/Art/Castle-Hall/Tiles/Props.png", "Props_1");
         K.Note(12f, "Smith's Letter",
             "We forged for the old king and we will not forge for a usurper. The frost watch can starve us if they like.\n\n" +
@@ -78,7 +78,7 @@ public static class Level4Taiga
             K.L("frostbrand", 1f), K.L("frost_amulet", 1f), K.L("soul_shard", 1f, 2, 3), K.L("crimson_flask", 1f, 2, 2));
         var hunter = K.Enemy(K.Kind.EliteNinja, 270f, "Warden's Hunter", frostElite);
         K.BossArena(254f, warden.GetComponent<PatrolSkeletonAI>(), "The Frost Warden", "Ice cracks as the Warden lifts Frostbrand's sheath",
-            "The Warden Falls", "Frostbrand is yours");
+            "The Warden Falls", "Frostbrand is yours", "THE FROST WARDEN", "GUARDIAN OF FROSTBRAND");
 
         K.Pickup("frost_key", 105.5f, 1.3f, 1, "taiga_frost_key");
         K.Gate(107.5f, "frost_key", "taiga_vault", K.SpriteAt("Assets/Art/Graveyard/Tiles.png", "Tiles_234"));
@@ -94,6 +94,12 @@ public static class Level4Taiga
         float[] stumps = { 6f, 60f, 124f, 185f, 228f, 262f };
         for (int i = 0; i < stumps.Length; i++) K.Prop(T(i % 2 == 0 ? 3 : 5), stumps[i], 0.9f, "Backtiles", 2, i % 2 == 1, 0.3f, Frost);
         foreach (float x in new[] { 40f, 116f, 210f, 278f }) K.PointLight(x, 3f, new Color(0.6f, 0.8f, 1f), 0.7f, 7f);
+
+        // More of the frozen forest: bushes, stumps, frozen boulders, and the smiths' braziers.
+        foreach (float x in new[] { 9f, 33f, 72f, 92f, 128f, 156f, 182f, 208f, 244f, 271f, 298f }) K.Prop(T(1), x, 0.85f, "Backtiles", 5, x % 2 == 0, 0.1f, Frost);
+        foreach (float x in new[] { 26f, 84f, 145f, 200f, 258f }) K.Prop(T(9), x, 0.8f, "Backtiles", 3, false, 0.25f, Frost);
+        foreach (float x in new[] { 55f, 170f, 240f }) K.Torch(x, 1.2f, 1.1f);
+        foreach (float x in new[] { 55f, 170f, 240f }) K.Smoke(x, 1.8f, 0.6f);
 
         K.Atmosphere(new Color(0.75f, 0.85f, 1f), 0.85f, new Color(0.85f, 0.92f, 1f), 0.14f,
             new K.VolumeLook("TaigaPost", 0.35f, 0.9f, 12f, -18f, new Color(0.9f, 0.95f, 1.05f)),
