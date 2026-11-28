@@ -37,27 +37,27 @@ public static class BuildCredits
         Role("The King's Executioner, Unmade", "The Rotting Colossus") +
         Role("Guardian of Frostbrand", "The Frost Warden") +
 
-        H("HERO") +
-        Role("Soulslike Knight", "SpellSoft Pixel") +
-
-        H("ENVIRONMENTS") +
-        Role("Graveyard  •  Wood Camp  •  Mushroom Grove\nFinal Taiga Forest  •  Castle Hall  •  Dungeon Prison", "Anokolisa", "patreon.com/Anokolisa") +
-        Role("Fantasy Swamp Forest", "The Flavare", "theflavare.com") +
+        H("ART & ASSET CREDITS") +
+        Role("Main Character", "SpellSoft Pixel", "spellsoftpixel.itch.io/2d-soulslike-knight") +
+        Role("Heart UI", "In The Void", "in-the-void.itch.io/pixel-hearts-pack") +
+        Role("Main Menu & GUI", "Tiopalada", "tiopalada.itch.io/tiny-rpg-mana-soul-gui") +
+        Role("Collectible Items", "Dani Maccari", "dani-maccari.itch.io/platformer-metroidvania-pixel-items-free-assets") +
 
         H("ENEMIES") +
-        Role("Skeleton Warrior (shield and spear)", "Skeleton Warrior sprite set") +
-        Role("Skeleton Sprite Pack (axe skeleton)", "Jesse Munguia", "jesse-m.itch.io") +
-        Role("Ninja Enemy Pack (yellow ninja)", "KBPixelArt", "kbpixelart.itch.io") +
+        Role("Skeleton Enemy Pack", "Jesse M", "jesse-m.itch.io/skeleton-pack") +
+        Role("Ninja Enemy Pack", "KBPixelArt", "kbpixelart.itch.io/ninja-enemy-pack") +
+        Role("Skeleton Warrior", "Skeleton Warrior sprite set") +
 
-        H("ITEMS, INTERFACE AND EFFECTS") +
-        Role("Platformer Items (coins, potions, keys, gems)", "Dani Maccari", "dani-maccari.itch.io") +
-        Role("Tiny RPG — Mana Soul GUI", "Gabriel \"tiopalada\" Lima", "CC0") +
-        Role("Heart icon", "3 Hearts — Free Pack") +
-        Role("Explosions Pack", "Luis Zuno (Ansimuz)", "ansimuz.com  •  CC0") +
+        H("ENVIRONMENT ART") +
+        Role("Moon Graveyard  •  Hero's Journey: Wood Camp  •  Mushroom Grove\nFinal Taiga Forest  •  Castle Hall  •  Dungeon Prison", "Anokolisa", "anokolisa.itch.io") +
+        Role("Fantasy Swamp Forest", "The Flavare", "theflavare.itch.io") +
+
+        H("EFFECTS AND TYPE") +
+        Role("Explosions Pack", "Luis Zuno (Ansimuz)", "ansimuz.itch.io") +
         Role("Typeface", "Liberation Sans", "Red Hat  •  SIL Open Font License") +
 
-        H("MUSIC") +
-        Role("Bonfires — dark fantasy dungeon music", "arnocyreus", "arnocyreus.itch.io") +
+        H("AUDIO") +
+        Role("Bonfires Dungeon Pack", "Arnocyreus", "arnocyreus.itch.io/bonfiresdungeon") +
         $"\n<size=78%><color={Ash}>Nightfall  •  Mistridden Woods  •  Voices From The Grove  •  Ruins In The Deep\nNecron's Tower  •  Temple Of Illas  •  Cursemark  •  Tyrant's Lament  •  Bonfires</color></size>\n" +
 
         H("SOUND") +
