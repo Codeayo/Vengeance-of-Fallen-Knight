@@ -46,7 +46,7 @@ public static class BuildCredits
         H("ENEMIES") +
         Role("Skeleton Enemy Pack", "Jesse M", "jesse-m.itch.io/skeleton-pack") +
         Role("Ninja Enemy Pack", "KBPixelArt", "kbpixelart.itch.io/ninja-enemy-pack") +
-        Role("Skeleton Warrior", "Skeleton Warrior sprite set") +
+        Role("Free Skeleton Pixel Art Sprite Sheets", "CraftPix.net", "craftpix.net/freebies/free-skeleton-pixel-art-sprite-sheets") +
 
         H("ENVIRONMENT ART") +
         Role("Moon Graveyard  •  Hero's Journey: Wood Camp  •  Mushroom Grove\nFinal Taiga Forest  •  Castle Hall  •  Dungeon Prison", "Anokolisa", "anokolisa.itch.io") +
